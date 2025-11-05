@@ -42,27 +42,41 @@ input,select{
  background:#111;padding:12px;border-radius:8px;margin-bottom:10px;
  box-shadow:0 0 6px rgba(255,102,0,0.2);
 }
+/* ==== SavFit 1.0 splash + top bar ==== */
+
 #topbar{
  position:fixed;top:0;left:0;width:100%;height:50px;
  background:#111;border-bottom:2px solid var(--accent);
  display:flex;align-items:center;justify-content:space-between;
  color:var(--accent);padding:0 12px;z-index:999;
+ font-weight:600;letter-spacing:0.5px;
 }
+
+#topTitle{font-size:18px;margin:0;}
+
 #backBtn{
  background:none;border:none;color:var(--accent);
  font-size:22px;padding:4px 8px;cursor:pointer;
 }
-#topTitle{font-size:18px;margin:0;}
-.fade{animation:fade 0.25s ease-in-out;}
-@keyframes fade{from{opacity:0;}to{opacity:1;}}
-/* Splash */
+
 #splash{
  position:fixed;top:0;left:0;width:100%;height:100%;
- background:#000 url('https://i.postimg.cc/jq9R7f9B/file-00000000057471f481be9e892c4c9aed-2.jpg') center/contain no-repeat;
- display:flex;align-items:flex-end;justify-content:center;
- flex-direction:column;text-align:center;color:var(--accent);
+ background:#000 url('https://i.postimg.cc/jq9R7f9B/file-00000000057471f481be9e892c4c9aed-2.jpg')
+ center top no-repeat;background-size:contain;
+ display:flex;flex-direction:column;align-items:center;justify-content:flex-end;
+ color:var(--accent);z-index:10000;text-align:center;
 }
-#splash p{margin-bottom:60px;font-size:18px;}
+
+#splash .spinner{
+ border:4px solid #111;border-top:4px solid var(--accent);
+ border-radius:50%;width:60px;height:60px;
+ animation:spin 1s linear infinite;margin-bottom:12px;
+}
+
+#splash p{
+ margin-bottom:40px;font-size:20px;font-weight:500;
+ text-shadow:0 0 6px #000;
+}
 /* Main menu */
 #menu img{
  width:90%;max-width:300px;margin:20px auto;display:block;
@@ -113,16 +127,17 @@ input,select{
 
 <!-- Splash -->
 <div id="splash">
+  <div class="spinner"></div>
   <p>Loading up your gains…</p>
 </div>
 
 <!-- Top bar -->
 <div id="topbar" class="hidden">
   <button id="backBtn" onclick="navBack()">←</button>
-  <h1 id="topTitle">SavFit</h1>
+  <h1 id="topTitle">SavFit 1.0</h1>
   <div style="width:28px"></div>
 </div>
-
+ 
 <!-- Sections -->
 <div id="menu" class="container hidden">
   <img src="https://i.postimg.cc/VvwcL95D/file-00000000f1a8720a93b97d8839c5e55e.png" alt="SavFit logo">
@@ -186,70 +201,75 @@ window.addEventListener('load',()=>{
   setTimeout(()=>{document.getElementById('splash').classList.add('hidden');showSection('menu');},1500);
 });
 </script>
-<!-- ==== PART 2: DASHBOARD LOGIC ==== -->
+<!-- ==== PART B: DASHBOARD / TIMER / VIBRATION ==== -->
 <script>
-/* ====== SavFit 0.4 Data & Defaults ====== */
+/* ===== SavFit 1.0 Workout Dashboard ===== */
 const defaultExercises = {
-  "Chest & Back":[
-    {name:"Flat Dumbbell Bench Press",notes:[
-      "Shoulders back and down","Feet always touching the floor",
-      "Back arch","Elbows at 45°","Power from chest not arms"]},
-    {name:"Pull-Ups or Lat Pulldown",notes:[
-      "Overhand grip just over shoulder width","Drive elbows back",
-      "Hold pull at bottom for a second"]},
-    {name:"Incline Dumbbell Bench Press",notes:[
-      "Bench at 35–45°","Use knees to lift weights up"]},
-    {name:"Bent-Over Row",notes:[
-      "Back aligned, core braced","Bar pulled straight up to lower chest"]},
-    {name:"Dumbbell Fly",notes:[
-      "Lower weight, slow reps","Feel chest stretch","Slight bend in elbows"]}
-  ],
-  "Legs & Glutes":[
-    {name:"Back Squat",notes:[
-      "Grip close, elbows forward","Bar on upper traps","Back straight","Push through heels"]},
-    {name:"Romanian Deadlift",notes:[
-      "Legs shoulder width","Slight bend","Straight back"]},
-    {name:"Standing Calf Raise",notes:[
-      "One leg at a time","Hold top and bottom"]},
-    {name:"Seated Calf Raise",notes:[
-      "Hold top and bottom","Use step if no machine"]},
-    {name:"Walking Dumbbell Lunges",notes:[
-      "Weight on heels when pushing","Core upright"]},
-    {name:"Hip Thrust",notes:[
-      "Depth adequate","Squeeze glutes at top"]}
-  ],
-  "Shoulders & Mixed":[
-    {name:"Deadlift",notes:[
-      "Bar over mid-foot","Drive through heels","Tense core/back"]},
-    {name:"Overhead Barbell Press",notes:[
-      "Hands over shoulder width","Forearms straight up","Don’t flare elbows"]},
-    {name:"Dumbbell Lateral Raise",notes:[
-      "Light dumbbells","Slight bend elbows","Controlled motion"]},
-    {name:"Dumbbell Rear Delt Raise",notes:[
-      "Bent-over row stance","Feel in rear delts"]},
-    {name:"Ab Roller",notes:[
-      "Slow controlled motion","Hold extended","Tense core"]},
-    {name:"Weighted Russian Twists",notes:[
-      "Twist fully side to side","Keep tension in abs"]}
-  ]
+ "Chest & Back":[
+  {name:"Flat Dumbbell Bench Press",notes:[
+   "Shoulders back and down","Feet always touching the floor",
+   "Back arch","Elbows at 45°","Power from chest not arms"]},
+  {name:"Pull-Ups or Lat Pulldown",notes:[
+   "Overhand grip just over shoulder width","Drive elbows back",
+   "Hold pull at bottom for a second"]},
+  {name:"Incline Dumbbell Bench Press",notes:[
+   "Bench 35–45°","Use knees to lift weights up"]},
+  {name:"Bent-Over Row",notes:[
+   "Back aligned, core braced","Bar pulled straight up to lower chest"]},
+  {name:"Dumbbell Fly",notes:[
+   "Lower weight, slow reps","Feel chest stretch","Slight bend in elbows"]}
+ ],
+ "Legs & Glutes":[
+  {name:"Back Squat",notes:[
+   "Grip close, elbows forward","Bar on upper traps","Back straight","Push through heels"]},
+  {name:"Romanian Deadlift",notes:[
+   "Legs shoulder width","Slight bend","Straight back"]},
+  {name:"Standing Calf Raise",notes:[
+   "One leg at a time","Hold top and bottom"]},
+  {name:"Seated Calf Raise",notes:[
+   "Hold top and bottom","Use step if no machine"]},
+  {name:"Walking Dumbbell Lunges",notes:[
+   "Weight on heels when pushing","Core upright"]},
+  {name:"Hip Thrust",notes:[
+   "Depth adequate","Squeeze glutes at top"]}
+ ],
+ "Shoulders & Mixed":[
+  {name:"Deadlift",notes:[
+   "Bar over mid-foot","Drive through heels","Tense core/back"]},
+  {name:"Overhead Barbell Press",notes:[
+   "Hands over shoulder width","Forearms straight up","Don’t flare elbows"]},
+  {name:"Dumbbell Lateral Raise",notes:[
+   "Light dumbbells","Slight bend elbows","Controlled motion"]},
+  {name:"Dumbbell Rear Delt Raise",notes:[
+   "Bent-over row stance","Feel in rear delts"]},
+  {name:"Ab Roller",notes:[
+   "Slow controlled motion","Hold extended","Tense core"]},
+  {name:"Weighted Russian Twists",notes:[
+   "Twist fully side to side","Keep tension in abs"]}
+ ]
 };
 const optionalExercises=[
-  "Bicep Curls","Hammer Curls","Skull Crushers","Close-Grip Bench",
-  "Tricep Hybrid","5-Minute Core Blast","Wood Cutter","Leg Extension","Hamstring Curl"
+ "Bicep Curls","Hammer Curls","Skull Crushers","Close-Grip Bench",
+ "Tricep Hybrid","5-Minute Core Blast","Wood Cutter","Leg Extension","Hamstring Curl"
 ];
 
 let sfState=JSON.parse(localStorage.getItem('savfitState')||'{"logs":[]}');
 let currentWorkout={date:"",focus:"",data:[]};
 
-/* ====== UI Builders ====== */
 const listEl=document.getElementById('exerciseList');
 const focusSel=document.getElementById('focusSelect');
 const dateInput=document.getElementById('workoutDate');
 const addBtn=document.getElementById('addExerciseBtn');
 const endBtn=document.getElementById('endWorkoutBtn');
 
-/* --- populate exercises when focus selected --- */
+/* Default focus = prompt user */
+focusSel.innerHTML=`<option value="">Select focus…</option>`+
+ Object.keys(defaultExercises).map(f=>`<option>${f}</option>`).join('');
+focusSel.value="";
+
+/* Populate exercises when focus chosen */
 focusSel.addEventListener('change',()=>{
+  if(!focusSel.value)return;
   populateExercises(focusSel.value);
 });
 function populateExercises(focus){
@@ -259,7 +279,7 @@ function populateExercises(focus){
   exList.forEach(ex=>addExerciseCard(ex.name,ex.notes));
 }
 
-/* --- add exercise card --- */
+/* ===== Add Exercise Card ===== */
 function addExerciseCard(name,notes=[]){
   const card=document.createElement('div');
   card.className='exercise-card';
@@ -273,46 +293,48 @@ function addExerciseCard(name,notes=[]){
     </div>
     <label>Weight (kg): <input type="number" min="0" class="exWeight"></label><br>
     <label>Difficulty: 
-      <select class="exDiff">
-        <option value="1">1</option><option value="2">2</option>
-        <option value="3">3</option><option value="4">4</option>
-        <option value="5">5</option>
-      </select>
+      <select class="exDiff">${[1,2,3,4,5].map(i=>`<option>${i}</option>`).join('')}</select>
     </label>
     <label>Form: 
-      <select class="exForm">
-        <option value="1">1</option><option value="2">2</option>
-        <option value="3">3</option><option value="4">4</option>
-        <option value="5">5</option>
-      </select>
+      <select class="exForm">${[1,2,3,4,5].map(i=>`<option>${i}</option>`).join('')}</select>
+    </label><br>
+    <label>Sets:
+      <select class="exSets">${Array.from({length:10},(_,i)=>`<option ${i==2?'selected':''}>${i+1}</option>`).join('')}</select>
     </label>
-    <div class="sets-grid">
-      ${[1,2,3].map(i=>`<input type='number' min='0' placeholder='Reps ${i}' class='reps'>`).join('')}
-    </div>
+    <div class="sets-grid"></div>
     <button onclick="saveSet(this)">💾 Save Set</button>
-    <button onclick="startRest()">🕒 Start Rest</button>
-  `;
+    <button onclick="startRest()">🕒 Rest</button>`;
   card.dataset.notes=JSON.stringify(notes);
   listEl.appendChild(card);
+  buildSetInputs(card,3);
+  card.querySelector('.exSets').addEventListener('change',e=>buildSetInputs(card,parseInt(e.target.value)));
 }
 
-/* --- remove exercise --- */
-function removeExercise(btn){
-  btn.closest('.exercise-card').remove();
+/* Build reps inputs dynamically */
+function buildSetInputs(card,count){
+  const grid=card.querySelector('.sets-grid');
+  grid.innerHTML='';
+  for(let i=1;i<=count;i++){
+    const inp=document.createElement('input');
+    inp.type='number';inp.min=0;inp.placeholder=`Reps ${i}`;
+    inp.className='reps';grid.appendChild(inp);
+  }
 }
 
-/* --- notes popup --- */
+/* Remove exercise */
+function removeExercise(btn){btn.closest('.exercise-card').remove();}
+
+/* Notes popup */
 function openNotes(btn){
   const notes=JSON.parse(btn.closest('.exercise-card').dataset.notes||'[]');
   const pop=document.createElement('div');
   pop.className='notes-popup';
   pop.innerHTML=`<ul>${notes.map(n=>`<li>${n}</li>`).join('')}</ul>
   <button onclick="this.parentElement.remove()">Close</button>`;
-  document.body.appendChild(pop);
-  pop.style.display='block';
+  document.body.appendChild(pop);pop.style.display='block';
 }
 
-/* --- save set --- */
+/* Save set */
 function saveSet(btn){
   const card=btn.closest('.exercise-card');
   const name=card.querySelector('strong').innerText;
@@ -327,32 +349,44 @@ function saveSet(btn){
   vibrate(40);
 }
 
-/* --- rest timer --- */
+/* ===== Floating Rest Timer ===== */
+let restInterval;
 function startRest(){
-  const modal=document.getElementById('loader');
-  modal.querySelector('p').innerText='Rest timer…';
-  modal.style.display='flex';
-  let sec=parseInt(localStorage.getItem('restTime')||'60');
-  const p=modal.querySelector('p');
-  const timer=setInterval(()=>{
-    p.innerText=`Rest: ${sec}s`;
-    if(sec<=0){clearInterval(timer);modal.style.display='none';vibrate(600);}
-    sec--;
+  stopRest();
+  const time=parseInt(localStorage.getItem('restTime')||'60');
+  let sec=time;
+  const float=document.createElement('div');
+  float.id='restCircle';
+  float.style.cssText=`
+    position:fixed;bottom:20px;right:20px;width:70px;height:70px;
+    border-radius:50%;background:#111;border:3px solid var(--accent);
+    color:var(--accent);font-weight:600;font-size:18px;
+    display:flex;align-items:center;justify-content:center;
+    z-index:9999;box-shadow:0 0 8px var(--accent);`;
+  float.innerText=sec;
+  document.body.appendChild(float);
+  restInterval=setInterval(()=>{
+    sec--;float.innerText=sec;
+    if(sec<=0){stopRest();vibrate(800);}
   },1000);
 }
+function stopRest(){
+  if(restInterval){clearInterval(restInterval);restInterval=null;}
+  const c=document.getElementById('restCircle');if(c)c.remove();
+}
 
-/* --- add exercise manually --- */
+/* ===== Add Exercise manually ===== */
 addBtn.addEventListener('click',()=>{
   const all=[...Object.values(defaultExercises).flat().map(e=>e.name),...optionalExercises];
   const name=prompt("Add Exercise:\nChoose or type new:",all[0]||"");
   if(name){addExerciseCard(name);}
 });
 
-/* --- end workout --- */
+/* ===== End Workout ===== */
 endBtn.addEventListener('click',()=>{
   currentWorkout.date=dateInput.value||new Date().toISOString().slice(0,10);
   if(!currentWorkout.focus){alert("Select a focus first");return;}
-  if(!currentWorkout.data.length){alert("No exercises");return;}
+  if(!currentWorkout.data.length){alert("No exercises recorded");return;}
   sfState.logs.push(JSON.parse(JSON.stringify(currentWorkout)));
   localStorage.setItem('savfitState',JSON.stringify(sfState));
   localStorage.removeItem('savfitCurrent');
@@ -361,8 +395,13 @@ endBtn.addEventListener('click',()=>{
   showSection('menu');
 });
 
-/* --- vibration helper --- */
-function vibrate(ms){try{if('vibrate'in navigator)navigator.vibrate(ms);}catch(e){};}
+/* ===== Vibration helper ===== */
+function vibrate(ms){
+  try{
+    if(navigator.vibrate)navigator.vibrate(ms);
+    else if(window.AndroidInterface)AndroidInterface.vibrate(ms);
+  }catch(e){}
+}
 </script>
 <!-- ==== PART 3: LOG / PROGRESS / BACKUP / SETTINGS ==== -->
 <script>
@@ -427,28 +466,47 @@ function drawChart(name){
   });
 }
 
-/* ========== Backup / Restore ========== */
+/* ========== Backup / Share / Restore (SavFit 1.0) ========== */
 function renderBackup(){
   const el=document.getElementById('backup');
-  el.innerHTML=`<h2>Backup & Restore</h2>
-  <button onclick="exportCSV()">Export CSV</button>
+  el.innerHTML=<h2>Backup / Share</h2>
+  <button onclick="shareCSV()">📤 Share Workout Data (CSV)</button>
   <input type="file" id="fileInput" accept=".csv" style="display:none" onchange="importCSV(event)">
-  <button onclick="document.getElementById('fileInput').click()">Import CSV</button>`;
+  <button onclick="document.getElementById('fileInput').click()">📥 Import CSV</button>;
 }
-function exportCSV(){
-  if(!sfState.logs.length){alert('No data to export.');return;}
+
+/* --- create CSV text from logs --- */
+function makeCSV(){
   let csv='Date,Focus,Exercise,Weight,Reps,Difficulty,Form\n';
   sfState.logs.forEach(l=>{
     l.data.forEach(d=>{
-      csv+=`${l.date},${l.focus},"${d.name}",${d.weight},"${d.reps.join('/')}",${d.difficulty},${d.form}\n`;
+      csv+=${l.date},${l.focus},"${d.name}",${d.weight},"${d.reps.join('/')}",${d.difficulty},${d.form}\n;
     });
   });
-  const blob=new Blob([csv],{type:'text/csv'});
-  const a=document.createElement('a');
-  a.href=URL.createObjectURL(blob);a.download='SavFit_Backup.csv';a.click();
-  URL.revokeObjectURL(a.href);
-  alert('Backup exported ✅');
+  return csv;
 }
+
+/* --- share CSV via Android share sheet --- */
+function shareCSV(){
+  if(!sfState.logs.length){alert('No data to share');return;}
+  const csv=makeCSV();
+  const blob=new Blob([csv],{type:'text/csv'});
+  const fileName='SavFit_Workouts.csv';
+  const file=new File([blob],fileName,{type:'text/csv'});
+  if(navigator.canShare && navigator.canShare({files:[file]})){
+    navigator.share({files:[file],title:'SavFit Data',text:'Workout log from SavFit 💪'})
+      .catch(()=>alert('Share cancelled'));
+  }else if(navigator.share){
+    const url=URL.createObjectURL(blob);
+    navigator.share({title:'SavFit Data',text:csv,url})
+      .finally(()=>URL.revokeObjectURL(url));
+  }else{
+    /* fallback: copy CSV text */
+    navigator.clipboard.writeText(csv).then(()=>alert('CSV copied to clipboard'));
+  }
+}
+
+/* --- import CSV (restore) --- */
 function importCSV(e){
   const f=e.target.files[0];if(!f)return;
   const r=new FileReader();
@@ -456,15 +514,18 @@ function importCSV(e){
     const lines=ev.target.result.trim().split(/\r?\n/).slice(1);
     const logs=[];
     lines.forEach(line=>{
-      const [date,focus,name,w,reps,diff,form]=line.split(/,(?=(?:[^"]*"[^"]*")*[^"]*$)/);
+      const [date,focus,name,w,reps,diff,form]=line.split(/,(?=(?:[^"]"[^"]*")[^"]$)/);
       let log=logs.find(x=>x.date===date&&x.focus===focus);
       if(!log){log={date,focus,data:[]};logs.push(log);}
-      log.data.push({name:name.replace(/"/g,''),weight:w,reps:reps.replace(/"/g,'').split('/'),
-        difficulty:diff,form});
+      log.data.push({
+        name:name.replace(/"/g,''),weight:w,
+        reps:reps.replace(/"/g,'').split('/'),
+        difficulty:diff,form
+      });
     });
     sfState.logs=logs;
     localStorage.setItem('savfitState',JSON.stringify(sfState));
-    alert('Backup restored ✅');
+    alert('Data restored ✅');
   };
   r.readAsText(f);
 }
@@ -476,12 +537,72 @@ function renderSettings(){
     <label>Default rest (sec): <input type="number" id="restInput" min="5" max="300" value="${localStorage.getItem('restTime')||60}"></label><br>
     <label><input type="checkbox" id="vibChk" ${localStorage.getItem('vib')!=='0'?'checked':''}> Enable vibration</label><br>
     <button onclick="saveSettings()">Save Settings</button>
-    <p>Version 0.4</p>`;
+    <p>Version 1.0 🏋️</p>`;
 }
 function saveSettings(){
   localStorage.setItem('restTime',document.getElementById('restInput').value);
   localStorage.setItem('vib',document.getElementById('vibChk').checked?'1':'0');
   alert('Settings saved.');
+}
+ /* ========== Exercise Log Comparison (SavFit 1.0) ========== */
+
+/* --- renderLog with Compare button --- */
+function renderLog(){
+  const el=document.getElementById('log');
+  el.innerHTML='<h2>Exercise Log</h2>';
+  if(!sfState.logs.length){el.innerHTML+='<p>No workouts saved yet.</p>';return;}
+  sfState.logs.slice().reverse().forEach((l,i)=>{
+    const c=document.createElement('div');c.className='card';
+    c.innerHTML=<strong>${l.date}</strong> – ${l.focus}
+      <button onclick="viewWorkout(${sfState.logs.length-1-i})">View</button>;
+    el.appendChild(c);
+  });
+  el.innerHTML+=<button onclick="openCompare()">🔍 Compare Workouts</button>;
+}
+
+/* --- open comparison selector --- */
+function openCompare(){
+  if(sfState.logs.length<2){alert('Need at least 2 workouts to compare.');return;}
+  const modal=document.createElement('div');
+  modal.className='notes-popup';
+  modal.style.maxWidth='380px';
+  const opts=sfState.logs.map((l,i)=><option value="${i}">${l.date} – ${l.focus}</option>).join('');
+  modal.innerHTML=<h3>Compare Workouts</h3>
+    <label>Workout 1 <select id="cmp1">${opts}</select></label><br>
+    <label>Workout 2 <select id="cmp2">${opts}</select></label><br>
+    <button onclick="doCompare()">Compare</button>
+    <button onclick="this.parentElement.remove()">Cancel</button>;
+  document.body.appendChild(modal);
+  modal.style.display='block';
+}
+
+/* --- perform comparison --- */
+function doCompare(){
+  const i1=parseInt(document.getElementById('cmp1').value);
+  const i2=parseInt(document.getElementById('cmp2').value);
+  if(isNaN(i1)||isNaN(i2)||i1===i2){alert('Choose two different workouts.');return;}
+  const w1=sfState.logs[i1], w2=sfState.logs[i2];
+  const allNames=[...new Set([...w1.data.map(d=>d.name),...w2.data.map(d=>d.name)])];
+  const rows=allNames.map(n=>{
+    const a=w1.data.find(d=>d.name===n)||{};
+    const b=w2.data.find(d=>d.name===n)||{};
+    return <tr><td>${n}</td>
+      <td>${a.weight||'-'}</td><td>${a.reps?a.reps.join('/'):'-'}</td>
+      <td>${b.weight||'-'}</td><td>${b.reps?b.reps.join('/'):'-'}</td></tr>;
+  }).join('');
+  const pop=document.createElement('div');
+  pop.className='notes-popup';
+  pop.style.width='95%';pop.style.maxWidth='480px';
+  pop.innerHTML=<h3>${w1.date} vs ${w2.date}</h3>
+    <table style="width:100%;color:#fff;font-size:13px;border-collapse:collapse;">
+      <tr style="color:var(--accent)">
+        <th>Exercise</th><th>${w1.focus}</th><th>Reps</th>
+        <th>${w2.focus}</th><th>Reps</th>
+      </tr>${rows}</table>
+    <button onclick="this.parentElement.remove()">Close</button>;
+  document.body.appendChild(pop);
+  pop.style.display='block';
+  document.querySelector('.notes-popup')?.remove(); // close selector
 }
 </script>
 <!-- ==== PART 4: HELP / ABOUT / SHARE / NAVIGATION ==== -->
@@ -503,8 +624,7 @@ function renderHelp(){
     <li>Progress Summary shows charts of your weights over time.</li>
     <li>Use Backup / Restore to export or import your data as CSV.</li>
   </ul>
-  <p style="margin-top:15px;">Created for Savita by the best bro ever ❤️</p>
-  </div>`;
+  <p style="margin-top:15px;">SavFit Version 1.0<br>Created for Savita by the best bro ever ❤️</p>`;
 }
 
 /* ===== Share App ===== */
@@ -531,9 +651,16 @@ function showSection(id){
   document.getElementById(id)?.classList.remove('hidden');
   current=id;
   document.getElementById('topbar').classList.toggle('hidden',id==='splash');
-  const titles={menu:'SavFit',dashboard:'Workout',log:'Exercise Log',progress:'Progress',
-                backup:'Backup / Restore',settings:'Settings',help:'Help / About'};
-  document.getElementById('topTitle').textContent=titles[id]||'SavFit';
+  const titles={
+    menu:'SavFit 1.0',
+    dashboard:'Workout – SavFit 1.0',
+    log:'Exercise Log – SavFit 1.0',
+    progress:'Progress – SavFit 1.0',
+    backup:'Backup / Share – SavFit 1.0',
+    settings:'Settings – SavFit 1.0',
+    help:'Help / About – SavFit 1.0'
+  };
+  document.getElementById('topTitle').textContent=titles[id]||'SavFit 1.0';
   renderSection(id);
 }
 function navBack(){
@@ -541,12 +668,17 @@ function navBack(){
   showSection('menu');
 }
 
-/* ===== App Start ===== */
+/* ===== SavFit 1.0 App Start ===== */
 window.addEventListener('load',()=>{
+  const splash=document.getElementById('splash');
+  const spinner=document.createElement('div');
+  spinner.className='spinner';
+  splash.prepend(spinner);      // make sure spinner always visible
   setTimeout(()=>{
-    document.getElementById('splash').classList.add('hidden');
+    splash.classList.add('fade');
+    splash.classList.add('hidden');
     showSection('menu');
-  },1500);
+  },4000); // 4 seconds
 });
 </script>
 </body>
