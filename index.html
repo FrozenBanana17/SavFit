@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SavFit 0.3</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js">
+<style>
+html,body{margin:0;padding:0;background:#000;color:#FF6600;font-family:Arial,Helvetica,sans-serif;}
+button{background:#FF6600;color:#fff;border:none;padding:10px 16px;border-radius:8px;font-size:16px;}
+button:active{background:#FF3300;}
+.hidden{display:none;}
+/* SPLASH */
+#splash{
+ position:fixed;top:0;left:0;width:100%;height:100%;
+ background:#000 url('https://i.postimg.cc/jq9R7f9B/file-00000000057471f481be9e892c4c9aed-2.jpg')
+ no-repeat center center/cover;
+ display:flex;flex-direction:column;align-items:center;justify-content:flex-end;
+ color:#FF6600;z-index:1000;
+}
+#splash p{margin:40px 0;font-size:20px;text-shadow:0 0 10px #FF6600;}
+/* MAIN MENU */
+#menu{display:none;flex-direction:column;align-items:center;padding:20px;}
+#menu img{width:80%;max-width:500px;margin-top:20px;border-radius:10px;}
+.menu-btn{width:80%;max-width:300px;margin:12px;}
+</style>
+</head>
+<body>
+
+<!-- Splash -->
+<div id="splash">
+  <p>Loading up your gains...</p>
+</div>
+
+<!-- Main Menu -->
+<div id="menu">
+  <img src="https://i.postimg.cc/VvwcL95D/file-00000000f1a8720a93b97d8839c5e55e.png" alt="SavFit Header">
+  <button class="menu-btn" onclick="showSection('dashboard')">🏋️ Start Workout</button>
+  <button class="menu-btn" onclick="showSection('progress')">📈 Progress</button>
+  <button class="menu-btn" onclick="showSection('settings')">⚙️ Settings</button>
+  <button class="menu-btn" onclick="showSection('help')">❓ Help</button>
+  <button class="menu-btn" onclick="showSection('about')">ℹ️ About</button>
+</div>
+
+<!-- SECTION CONTAINERS -->
+<div id="dashboard" class="hidden"></div>
+<div id="progress" class="hidden"></div>
+<div id="settings" class="hidden"></div>
+<div id="help" class="hidden"></div>
+<div id="about" class="hidden"></div>
+
+<script>
+/* SPLASH HANDLER */
+window.addEventListener('load',()=>{
+  setTimeout(()=>{
+    document.getElementById('splash').style.display='none';
+    document.getElementById('menu').style.display='flex';
+  },2500);
+});
+
+/* SECTION NAVIGATION */
+function showSection(id){
+  document.querySelectorAll('#menu,#dashboard,#progress,#settings,#help,#about')
+          .forEach(el=>el.classList.add('hidden'));
+  document.getElementById(id).classList.remove('hidden');
+}
+</script>
+
+<!-- ==== END PART 1 ==== -->
+<!-- ==== PART 2: DASHBOARD ==== -->
+<style>
+/* Dashboard styles */
+#dashboard{padding:10px 0 80px;text-align:center;}
+#dashboard img{width:80%;max-width:480px;margin-top:10px;border-radius:10px;}
+input,select{background:#111;color:#fff;border:1px solid #FF6600;
+ border-radius:6px;padding:6px;margin:3px;}
+.exercise-card{border:1px solid #FF6600;border-radius:8px;margin:10px;padding:10px;text-align:left;}
+.set-field{display:flex;justify-content:space-between;align-items:center;margin:4px 0;}
+.set-field input{width:60px;text-align:center;}
+#overlayTimer{
+ position:fixed;bottom:20px;left:50%;transform:translateX(-50%);
+ background:#000C;border:2px solid #FF6600;color:#FF6600;
+ border-radius:10px;padding:10px 20px;font-size:22px;
+ display:none;z-index:9999;
+}
+</style>
+
+<div id="dashboardContent">
+  <img src="https://i.postimg.cc/jSH3RVPg/file-00000000673871f4a581a91702a2faa8.png" alt="Dashboard Header">
+  <h2>Workout Tracker</h2>
+  <label>Date:</label>
+  <input type="date" id="wDate">
+  <br>
+  <label>Focus:</label>
+  <select id="wFocus"></select>
+  <div id="exerciseArea"></div>
+  <button onclick="endWorkout()">✅ End Workout</button>
+  <button onclick="showSection('menu')">🏠 Menu</button>
+</div>
+
+<div id="overlayTimer"></div>
+
+<script>
+/* Data store */
+const sfState=JSON.parse(localStorage.getItem('savfitState')||'{}');
+if(!sfState.logs)sfState.logs=[];
+
+/* Focus groups */
+const focusMap={
+ "Chest & Back":["Flat Dumbbell Bench Press","Pull-Ups / Lat Pulldown","Incline Dumbbell Bench Press","Bent-Over Row","Dumbbell Fly"],
+ "Legs & Glutes":["Back Squat","Romanian Deadlift","Standing Calf Raise","Walking Lunges","Hip Thrust"],
+ "Shoulders & Mixed":["Deadlift","Overhead Press","Lateral Raise","Rear Delt Raise","Ab Roller"]
+};
+
+/* Populate focus list */
+const fSel=document.getElementById('wFocus');
+fSel.innerHTML=`<option value="">Select</option>`+
+ Object.keys(focusMap).map(k=>`<option>${k}</option>`).join('');
+
+fSel.onchange=()=>loadExercises(fSel.value);
+
+function loadExercises(focus){
+ const exArea=document.getElementById('exerciseArea');
+ exArea.innerHTML='';
+ if(!focus)return;
+ focusMap[focus].forEach(ex=>{
+   const div=document.createElement('div');
+   div.className='exercise-card';
+   div.innerHTML=`<h3>${ex}</h3>
+   Weight (kg): <input type="number" class="weight"><br>
+   Sets: <input type="number" class="numSets" min="1" max="10" value="3"
+     onchange="populateSets(this)">
+   <div class="sets"></div>`;
+   exArea.appendChild(div);
+   populateSets(div.querySelector('.numSets'));
+ });
+}
+
+/* Populate dynamic set fields */
+function populateSets(input){
+ const parent=input.closest('.exercise-card');
+ const num=parseInt(input.value)||0;
+ const setsDiv=parent.querySelector('.sets');
+ setsDiv.innerHTML='';
+ for(let i=1;i<=num;i++){
+   const set=document.createElement('div');
+   set.className='set-field';
+   set.innerHTML=`Set ${i}: <input type="number" min="1" class="reps" placeholder="Reps">
+   <button onclick="saveSet(this)">💾</button>`;
+   setsDiv.appendChild(set);
+ }
+}
+
+/* Save set */
+function saveSet(btn){
+ const card=btn.closest('.exercise-card');
+ const exName=card.querySelector('h3').innerText;
+ const date=document.getElementById('wDate').value||new Date().toISOString().split('T')[0];
+ const focus=document.getElementById('wFocus').value||'Custom';
+ const weight=card.querySelector('.weight').value;
+ const repsArr=[...card.querySelectorAll('.reps')].map(r=>r.value);
+ let log=sfState.logs.find(l=>l.date===date&&l.focus===focus);
+ if(!log){log={date,focus,data:[]};sfState.logs.push(log);}
+ let ex=log.data.find(d=>d.name===exName);
+ if(!ex){ex={name:exName,weight,reps:[]};log.data.push(ex);}
+ ex.weight=weight;
+ ex.reps=repsArr;
+ localStorage.setItem('savfitState',JSON.stringify(sfState));
+ btn.textContent='✅';
+ setTimeout(()=>btn.textContent='💾',800);
+}
+
+/* Overlay rest timer with vibration */
+let timerInt;
+function startRest(seconds=sfState.settings?.rest||60){
+ const overlay=document.getElementById('overlayTimer');
+ let t=seconds;
+ overlay.style.display='block';
+ overlay.textContent=`Rest: ${t}s`;
+ clearInterval(timerInt);
+ timerInt=setInterval(()=>{
+   t--;
+   if(t<=0){
+     clearInterval(timerInt);
+     overlay.textContent='Rest over! 💥';
+     if('vibrate' in navigator)navigator.vibrate([300,150,300,150,500]);
+     setTimeout(()=>overlay.style.display='none',1500);
+   }else{
+     overlay.textContent=`Rest: ${t}s`;
+   }
+ },1000);
+}
+
+/* End workout */
+function endWorkout(){
+ localStorage.setItem('savfitState',JSON.stringify(sfState));
+ alert('Workout saved ✅');
+ document.getElementById('exerciseArea').innerHTML='';
+ document.getElementById('wFocus').value='';
+ showSection('menu');
+}
+</script>
+<!-- ==== END PART 2 ==== -->
+<!-- ==== PART 3: PROGRESS + SETTINGS + HELP + ABOUT ==== -->
+<style>
+#progress,#settings,#help,#about{padding:20px;text-align:center;}
+canvas{background:#111;border:1px solid #FF6600;border-radius:8px;margin:20px auto;display:block;}
+h2{color:#FF6600;}
+.modalBtn{margin:10px;}
+pre{white-space:pre-wrap;text-align:left;color:#FF9933;}
+</style>
+
+<!-- Progress Section -->
+<div id="progressContent">
+ <h2>Progress Summary</h2>
+ <select id="progSelect"></select>
+ <canvas id="progChart" width="360" height="200"></canvas>
+ <div id="progDetails"></div>
+ <button onclick="showSection('menu')">🏠 Menu</button>
+</div>
+
+<!-- Settings -->
+<div id="settingsContent">
+ <h2>Settings</h2>
+ <label>Default rest time (seconds):</label>
+ <input type="number" id="restTime" min="10" max="300" value="60"><br>
+ <label><input type="checkbox" id="vibOn"> Enable vibration</label><br>
+ <button onclick="saveSettings()">💾 Save Settings</button>
+ <button onclick="showSection('menu')">🏠 Menu</button>
+</div>
+
+<!-- Help -->
+<div id="helpContent">
+ <h2>Help & Quick Tips</h2>
+ <pre>
+🏋️ Dashboard
+- Select Focus & Date.
+- Enter Weight and Sets.
+- For each Set enter Reps then tap 💾 to save.
+- Tap 🕒 icon to start rest timer.
+- Tap ✅ End Workout when done.
+
+📈 Progress
+- Choose exercise from dropdown to view chart.
+- Tap points to see details.
+
+💾 Backup
+- Use Export / Import buttons in browser console.
+
+⚙️ Settings
+- Adjust rest time & vibration.
+ </pre>
+ <button onclick="showSection('menu')">🏠 Menu</button>
+</div>
+
+<!-- About -->
+<div id="aboutContent">
+ <h2>About SavFit v0.3</h2>
+ <p>Created for Savita by the best bro ever ❤️</p>
+ <p>© 2025 SavFit Training App</p>
+ <button onclick="showSection('menu')">🏠 Menu</button>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script>
+/* SETTINGS persistence */
+if(!sfState.settings)sfState.settings={rest:60,vibrate:true};
+document.getElementById('restTime').value=sfState.settings.rest||60;
+document.getElementById('vibOn').checked=sfState.settings.vibrate||true;
+function saveSettings(){
+ sfState.settings.rest=parseInt(document.getElementById('restTime').value)||60;
+ sfState.settings.vibrate=document.getElementById('vibOn').checked;
+ localStorage.setItem('savfitState',JSON.stringify(sfState));
+ alert('Settings saved ✅');
+}
+
+/* PROGRESS CHART */
+const pSel=document.getElementById('progSelect');
+function loadProgressExercises(){
+ const allNames=[...new Set(sfState.logs.flatMap(l=>l.data.map(d=>d.name)))];
+ pSel.innerHTML='<option>Select exercise</option>'+allNames.map(n=>`<option>${n}</option>`).join('');
+}
+pSel.onchange=renderChart;
+function renderChart(){
+ const ex=pSel.value;if(!ex)return;
+ const pts=[];
+ sfState.logs.forEach(l=>{
+   const d=l.data.find(x=>x.name===ex);
+   if(d)pts.push({date:l.date,weight:parseFloat(d.weight)||0,reps:d.reps.join('/'),focus:l.focus});
+ });
+ pts.sort((a,b)=>new Date(a.date)-new Date(b.date));
+ const ctx=document.getElementById('progChart');
+ if(window.chart)window.chart.destroy();
+ window.chart=new Chart(ctx,{type:'line',
+   data:{labels:pts.map(p=>p.date),
+         datasets:[{label:ex,data:pts.map(p=>p.weight),
+         borderColor:'#FF6600',backgroundColor:'#FF660044',tension:0.3,fill:true}]},
+   options:{plugins:{legend:{labels:{color:'#FF9933'}}},
+            scales:{x:{ticks:{color:'#FF9933'}},y:{ticks:{color:'#FF9933'}}},
+            onClick:(e,els)=>{
+              if(!els.length)return;
+              const i=els[0].index;const p=pts[i];
+              document.getElementById('progDetails').innerHTML=
+                `<h3>${p.date}</h3><p>Focus: ${p.focus}<br>Weight: ${p.weight} kg<br>Reps: ${p.reps}</p>`;
+            }}});
+}
+
+/* INITIAL LOAD */
+window.addEventListener('load',()=>{loadProgressExercises();});
+</script>
+</body>
+</html>
+<!-- ==== END PART 3 / END OF FILE ==== -->
