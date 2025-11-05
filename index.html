@@ -40,6 +40,8 @@ button:active{background:#FF3300;}
   <button class="menu-btn" onclick="showSection('settings')">⚙️ Settings</button>
   <button class="menu-btn" onclick="showSection('help')">❓ Help</button>
   <button class="menu-btn" onclick="showSection('about')">ℹ️ About</button>
+  <button class="menu-btn" onclick="openLog()">🗓️ Exercise Log</button>
+  <button class="menu-btn" onclick="openBackup()">💾 Backup & Restore</button>
 </div>
 
 <!-- SECTION CONTAINERS -->
@@ -308,6 +310,295 @@ function renderChart(){
 /* INITIAL LOAD */
 window.addEventListener('load',()=>{loadProgressExercises();});
 </script>
+ <!-- ==== PHASE 1: OVERLAY + LOG + BACKUP/RESTORE ==== -->
+<style>
+/* Overlay spinner */
+#loaderOverlay{
+ position:fixed;top:0;left:0;width:100%;height:100%;
+ background:rgba(0,0,0,0.8);color:#FF6600;
+ display:none;align-items:center;justify-content:center;
+ flex-direction:column;z-index:99999;font-size:20px;
+}
+#loaderOverlay .spinner{
+ border:4px solid #111;border-top:4px solid #FF6600;
+ border-radius:50%;width:60px;height:60px;
+ animation:spin 1s linear infinite;margin-bottom:15px;
+}
+@keyframes spin{from{transform:rotate(0deg);}to{transform:rotate(360deg);}}
+
+/* Exercise log + backup modals */
+.modal{
+ position:fixed;top:0;left:0;width:100%;height:100%;
+ background:#000E;color:#FF6600;overflow:auto;
+ display:none;flex-direction:column;align-items:center;
+ z-index:9999;padding:20px;
+}
+.modal h2{margin-top:30px;}
+.modal table{border-collapse:collapse;width:90%;margin-top:10px;}
+.modal th,.modal td{border:1px solid #FF6600;padding:6px;font-size:14px;text-align:center;}
+.modal button{margin:8px;}
+</style>
+
+<!-- Loader overlay -->
+<div id="loaderOverlay">
+  <div class="spinner"></div>
+  <p>Saving your gains...</p>
+</div>
+
+<!-- Exercise Log -->
+<div id="logModal" class="modal">
+  <h2>📅 Exercise Log</h2>
+  <div id="logContent">No workouts yet.</div>
+  <button onclick="closeLog()">Close</button>
+</div>
+
+<!-- Backup / Restore -->
+<div id="backupModal" class="modal">
+  <h2>💾 Backup & Restore</h2>
+  <button onclick="exportCSV()">Export CSV</button>
+  <input type="file" id="fileInput" accept=".csv" style="display:none" onchange="importCSV(event)">
+  <button onclick="document.getElementById('fileInput').click()">Import CSV</button>
+  <button onclick="closeBackup()">Close</button>
+</div>
+
+<script>
+/* ---------- Overlay handling ---------- */
+function showLoader(msg="Saving your gains..."){
+  const o=document.getElementById('loaderOverlay');
+  o.querySelector('p').innerText=msg;
+  o.style.display='flex';
+}
+function hideLoader(){document.getElementById('loaderOverlay').style.display='none';}
+
+/* ---------- Exercise Log ---------- */
+function openLog(){
+  const m=document.getElementById('logModal');
+  const c=document.getElementById('logContent');
+  c.innerHTML='';
+  if(!sfState.logs.length){c.innerText='No workouts yet.';}
+  else{
+    const tbl=document.createElement('table');
+    tbl.innerHTML='<tr><th>Date</th><th>Focus</th><th>Exercises</th></tr>';
+    sfState.logs.forEach(l=>{
+      const row=document.createElement('tr');
+      row.innerHTML=`<td>${l.date}</td><td>${l.focus}</td><td>${l.data.length}</td>`;
+      row.onclick=()=>{
+        alert(
+          l.data.map(
+            d=>`${d.name}: ${d.weight}kg  [${d.reps.join(",")}]`
+          ).join("\n")
+        );
+      };
+      tbl.appendChild(row);
+    });
+    c.appendChild(tbl);
+  }
+  m.style.display='flex';
+}
+function closeLog(){document.getElementById('logModal').style.display='none';}
+
+/* ---------- Backup / Restore ---------- */
+function openBackup(){document.getElementById('backupModal').style.display='flex';}
+function closeBackup(){document.getElementById('backupModal').style.display='none';}
+
+function exportCSV(){
+ try{
+   showLoader("Exporting...");
+   const s=JSON.parse(localStorage.getItem('savfitState')||'{"logs":[]}');
+   if(!s.logs.length){alert("No data to export.");hideLoader();return;}
+   let csv="Date,Focus,Exercise,Weight,Reps\n";
+   s.logs.forEach(l=>{
+     l.data.forEach(d=>{
+       csv+=`${l.date},${l.focus},"${d.name}",${d.weight},"${d.reps.join("/")}"\n`;
+     });
+   });
+   const blob=new Blob([csv],{type:"text/csv"});
+   const url=URL.createObjectURL(blob);
+   const a=document.createElement("a");
+   a.href=url;a.download="SavFit_Backup.csv";a.click();
+   URL.revokeObjectURL(url);
+   hideLoader();alert("Backup exported ✅");
+ }catch(e){console.error(e);hideLoader();alert("Export failed.");}
+}
+
+function importCSV(e){
+ const f=e.target.files[0];if(!f)return;
+ const r=new FileReader();
+ r.onload=function(ev){
+   try{
+     showLoader("Importing...");
+     const lines=ev.target.result.trim().split(/\r?\n/).slice(1);
+     const logs=[];
+     lines.forEach(line=>{
+       const [date,focus,name,w,reps]=line.split(/,(?=(?:[^"]*"[^"]*")*[^"]*$)/);
+       let log=logs.find(l=>l.date===date&&l.focus===focus);
+       if(!log){log={date,focus,data:[]};logs.push(log);}
+       log.data.push({
+         name:name.replace(/"/g,""),
+         weight:w,
+         reps:reps?reps.replace(/"/g,"").split("/"):[0]
+       });
+     });
+     sfState.logs=logs;
+     localStorage.setItem('savfitState',JSON.stringify(sfState));
+     hideLoader();alert("Backup restored ✅");
+   }catch(err){console.error(err);hideLoader();alert("Import failed.");}
+ };
+ r.readAsText(f);
+}
+</script>
+<!-- ==== END PHASE 1 ==== -->
+<!-- ==== PHASE 2: ANDROID-FEEL UI ==== -->
+<style>
+/* Top bar */
+#topbar {
+ position: fixed; top: 0; left: 0; width: 100%; height: 50px;
+ background: #111; border-bottom: 2px solid #FF6600;
+ display: flex; align-items: center; justify-content: space-between;
+ color: #FF6600; padding: 0 14px; z-index: 2000;
+}
+#topbar h1 { font-size: 18px; margin: 0; }
+#backBtn {
+ background: none; border: none; color: #FF6600;
+ font-size: 24px; cursor: pointer; padding: 4px 8px;
+}
+
+/* Transition animations */
+.fade   { animation: fade 0.25s ease-in-out; }
+.slideIn{ animation: slideIn 0.25s ease-out; }
+.slideOut{ animation: slideOut 0.25s ease-in; }
+
+@keyframes fade     { from{opacity:0;} to{opacity:1;} }
+@keyframes slideIn  { from{transform:translateX(100%);} to{transform:translateX(0);} }
+@keyframes slideOut { from{transform:translateX(0);} to{transform:translateX(-100%);} }
+</style>
+
+<div id="topbar">
+  <button id="backBtn" onclick="navBack()">←</button>
+  <h1 id="topTitle">SavFit</h1>
+  <div style="width:28px"></div> <!-- spacer -->
+</div>
+
+<script>
+/* ---------- Android-style navigation ---------- */
+let navHistory = ['menu'];
+function navTo(id){
+  const cur = navHistory[navHistory.length-1];
+  if(cur===id)return;
+  document.getElementById(cur).classList.add('slideOut');
+  setTimeout(()=>{ document.getElementById(cur).classList.add('hidden'); },250);
+  document.getElementById(id).classList.remove('hidden');
+  document.getElementById(id).classList.add('slideIn');
+  navHistory.push(id);
+  setTitle(id);
+  vibrateTap();
+}
+function navBack(){
+  if(navHistory.length<=1)return;
+  const cur=navHistory.pop();
+  const prev=navHistory[navHistory.length-1];
+  document.getElementById(cur).classList.add('slideOut');
+  setTimeout(()=>{
+    document.getElementById(cur).classList.add('hidden');
+    document.getElementById(prev).classList.remove('hidden');
+    document.getElementById(prev).classList.add('slideIn');
+    setTitle(prev);
+  },250);
+  vibrateTap();
+}
+function setTitle(id){
+  const map={
+    menu:"SavFit",
+    dashboard:"Workout",
+    progress:"Progress",
+    settings:"Settings",
+    help:"Help",
+    about:"About",
+    logModal:"Exercise Log",
+    backupModal:"Backup"
+  };
+  document.getElementById('topTitle').innerText=map[id]||"SavFit";
+}
+
+/* Override old showSection to use navTo */
+function showSection(id){ navTo(id); }
+
+/* Light haptic feedback */
+function vibrateTap(){
+  try{ if('vibrate' in navigator) navigator.vibrate([25,20]); }catch(e){}
+}
+
+/* Ensure top bar doesn’t hide menu */
+document.body.style.paddingTop="50px";
+</script>
+<!-- ==== END PHASE 2 ==== -->
+<!-- ==== PHASE 3: UI POLISH + SHARE ==== -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<style>
+/* Font-Awesome button icons & smoother modal fade */
+button i{margin-right:6px;}
+.modal,.#loaderOverlay{
+ transition:opacity 0.3s ease;
+}
+.modal.show,.#loaderOverlay.show{
+ display:flex;opacity:1;
+}
+.modal.hide,.#loaderOverlay.hide{
+ opacity:0;pointer-events:none;
+}
+button:active{transform:scale(0.96);}
+</style>
+
+<!-- Add a Share button to main menu -->
+<script>
+// --- Share handler ---
+function shareApp(){
+  const shareData={
+    title:"SavFit v0.3",
+    text:"Track your gains with SavFit 💪 – download the app now!",
+    url:window.location.href
+  };
+  if(navigator.share){
+    navigator.share(shareData)
+      .then(()=>console.log("shared"))
+      .catch(err=>console.warn("Share cancelled",err));
+  }else{
+    prompt("Copy this SavFit link:",window.location.href);
+  }
+  vibrateTap();
+}
+
+// --- Enhance modal open/close animations ---
+function fadeIn(el){el.classList.remove("hide");el.classList.add("show");}
+function fadeOut(el){el.classList.remove("show");el.classList.add("hide");setTimeout(()=>{el.style.display="none";},300);}
+
+// override for loader/modal show/hide
+function showLoader(msg="Saving your gains..."){
+ const o=document.getElementById('loaderOverlay');
+ o.querySelector('p').innerText=msg;
+ o.style.display='flex';fadeIn(o);
+}
+function hideLoader(){fadeOut(document.getElementById('loaderOverlay'));}
+
+// integrate fade with log & backup modals
+function openLog(){fadeIn(document.getElementById('logModal'));}
+function closeLog(){fadeOut(document.getElementById('logModal'));}
+function openBackup(){fadeIn(document.getElementById('backupModal'));}
+function closeBackup(){fadeOut(document.getElementById('backupModal'));}
+</script>
+
+<!-- add Share button dynamically to menu after load -->
+<script>
+window.addEventListener('load',()=>{
+ const m=document.getElementById('menu');
+ const btn=document.createElement('button');
+ btn.className='menu-btn';
+ btn.innerHTML='<i class="fa-solid fa-share-nodes"></i>Share App';
+ btn.onclick=shareApp;
+ m.appendChild(btn);
+});
+</script>
+<!-- ==== END PHASE 3 ==== -->
 </body>
 </html>
 <!-- ==== END PART 3 / END OF FILE ==== -->
