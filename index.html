@@ -403,46 +403,102 @@ function vibrate(ms){
   }catch(e){}
 }
 </script>
-<!-- ==== PART 3: LOG / PROGRESS / BACKUP / SETTINGS ==== -->
+<!-- ==== SECTION 3 — LOG / PROGRESS / BACKUP / SETTINGS (FINAL SavFit 1.0) ==== -->
 <script>
-/* ========== Exercise Log ========== */
+/* ========== Exercise Log = ========== */
 function renderLog(){
   const el=document.getElementById('log');
   el.innerHTML='<h2>Exercise Log</h2>';
-  if(!sfState.logs.length){el.innerHTML+='<p>No workouts saved yet.</p>';return;}
+  if(!sfState.logs.length){
+    el.innerHTML+='<p>No workouts saved yet.</p>';
+    return;
+  }
   sfState.logs.slice().reverse().forEach((l,i)=>{
-    const c=document.createElement('div');c.className='card';
+    const c=document.createElement('div');
+    c.className='card';
     c.innerHTML=`<strong>${l.date}</strong> – ${l.focus}
       <button onclick="viewWorkout(${sfState.logs.length-1-i})">View</button>`;
     el.appendChild(c);
   });
+  el.innerHTML+=`<button onclick="openCompare()">🔍 Compare Workouts</button>`;
 }
+
 function viewWorkout(idx){
   const l=sfState.logs[idx];
   const det=document.createElement('div');
   det.className='notes-popup';
   det.innerHTML=`<h3>${l.date} – ${l.focus}</h3>
     <table style="width:100%;color:#fff;font-size:13px;border-collapse:collapse;">
-    <tr style="color:var(--accent)"><th>Exercise</th><th>W</th><th>Reps</th><th>D</th><th>F</th></tr>
-    ${l.data.map(d=>`<tr><td>${d.name}</td><td>${d.weight}</td>
-      <td>${d.reps.join('/')}</td><td>${d.difficulty}</td><td>${d.form}</td></tr>`).join('')}
+      <tr style="color:var(--accent)">
+        <th>Exercise</th><th>Weight (kg)</th><th>Reps</th><th>Diff</th><th>Form</th>
+      </tr>
+      ${l.data.map(d=>`<tr><td>${d.name}</td><td>${d.weight}</td>
+        <td>${d.reps.join('/')}</td><td>${d.difficulty}</td><td>${d.form}</td></tr>`).join('')}
     </table>
     <button onclick="this.parentElement.remove()">Close</button>`;
-  document.body.appendChild(det);det.style.display='block';
+  document.body.appendChild(det);
+  det.style.display='block';
 }
 
-/* ========== Progress Chart ========== */
+/* ========== Compare Workouts = ========= */
+function openCompare(){
+  if(sfState.logs.length<2){alert('Need at least 2 workouts to compare.');return;}
+  const modal=document.createElement('div');
+  modal.className='notes-popup';modal.style.maxWidth='380px';
+  const opts=sfState.logs.map((l,i)=>`<option value="${i}">${l.date} – ${l.focus}</option>`).join('');
+  modal.innerHTML=`<h3>Compare Workouts</h3>
+    <label>Workout 1 <select id="cmp1">${opts}</select></label><br>
+    <label>Workout 2 <select id="cmp2">${opts}</select></label><br>
+    <button onclick="doCompare()">Compare</button>
+    <button onclick="this.parentElement.remove()">Cancel</button>`;
+  document.body.appendChild(modal);
+  modal.style.display='block';
+}
+
+function doCompare(){
+  const i1=parseInt(document.getElementById('cmp1').value);
+  const i2=parseInt(document.getElementById('cmp2').value);
+  if(isNaN(i1)||isNaN(i2)||i1===i2){alert('Choose two different workouts.');return;}
+  const w1=sfState.logs[i1], w2=sfState.logs[i2];
+  const allNames=[...new Set([...w1.data.map(d=>d.name),...w2.data.map(d=>d.name)])];
+  const rows=allNames.map(n=>{
+    const a=w1.data.find(d=>d.name===n)||{};
+    const b=w2.data.find(d=>d.name===n)||{};
+    return `<tr><td>${n}</td>
+      <td>${a.weight||'-'}</td><td>${a.reps?a.reps.join('/'):'-'}</td>
+      <td>${b.weight||'-'}</td><td>${b.reps?b.reps.join('/'):'-'}</td></tr>`;
+  }).join('');
+  const pop=document.createElement('div');
+  pop.className='notes-popup';
+  pop.style.width='95%';pop.style.maxWidth='480px';
+  pop.innerHTML=`<h3>${w1.date} vs ${w2.date}</h3>
+    <table style="width:100%;color:#fff;font-size:13px;border-collapse:collapse;">
+      <tr style="color:var(--accent)">
+        <th>Exercise</th><th>${w1.focus}</th><th>Reps</th>
+        <th>${w2.focus}</th><th>Reps</th>
+      </tr>${rows}</table>
+    <button onclick="this.parentElement.remove()">Close</button>`;
+  document.body.appendChild(pop);
+  pop.style.display='block';
+  document.querySelector('.notes-popup')?.remove(); // close selector
+}
+
+/* ========== Progress Chart = ========= */
 function renderProgress(){
   const el=document.getElementById('progress');
   el.innerHTML=`<h2>Progress Summary</h2>
-  <select id="progSelect"></select><canvas id="progressChart"></canvas>`;
+  <select id="progSelect"></select>
+  <canvas id="progressChart"></canvas>`;
   const s=document.getElementById('progSelect');
   const exNames=[...new Set(sfState.logs.flatMap(l=>l.data.map(d=>d.name)))];
   if(!exNames.length){el.innerHTML+='<p>No exercise data yet.</p>';return;}
-  exNames.forEach(n=>{const o=document.createElement('option');o.text=n;o.value=n;s.appendChild(o);});
+  exNames.forEach(n=>{
+    const o=document.createElement('option');o.text=n;o.value=n;s.appendChild(o);
+  });
   s.addEventListener('change',()=>drawChart(s.value));
   drawChart(exNames[0]);
 }
+
 function drawChart(name){
   const ctx=document.getElementById('progressChart');
   const data=sfState.logs.filter(l=>l.data.some(d=>d.name===name))
@@ -453,9 +509,11 @@ function drawChart(name){
   if(window.progChart)window.progChart.destroy();
   window.progChart=new Chart(ctx,{
     type:'line',
-    data:{datasets:[{label:name,data,borderColor:'#ff6600',backgroundColor:'rgba(255,102,0,0.3)',tension:0.3}]},
+    data:{datasets:[{label:name,data,
+      borderColor:'#ff6600',backgroundColor:'rgba(255,102,0,0.3)',tension:0.3}]},
     options:{
       scales:{x:{type:'category',labels:data.map(p=>p.x)}},
+      plugins:{legend:{labels:{color:'#fff'}}},
       onClick:(evt,els)=>{
         if(els.length){
           const pt=data[els[0].index];
@@ -466,27 +524,23 @@ function drawChart(name){
   });
 }
 
-/* ========== Backup / Share / Restore (SavFit 1.0) ========== */
+/* ========== Backup / Share / Restore = ========= */
 function renderBackup(){
   const el=document.getElementById('backup');
-  el.innerHTML=<h2>Backup / Share</h2>
+  el.innerHTML=`<h2>Backup / Share</h2>
   <button onclick="shareCSV()">📤 Share Workout Data (CSV)</button>
   <input type="file" id="fileInput" accept=".csv" style="display:none" onchange="importCSV(event)">
-  <button onclick="document.getElementById('fileInput').click()">📥 Import CSV</button>;
+  <button onclick="document.getElementById('fileInput').click()">📥 Import CSV</button>`;
 }
-
-/* --- create CSV text from logs --- */
 function makeCSV(){
   let csv='Date,Focus,Exercise,Weight,Reps,Difficulty,Form\n';
   sfState.logs.forEach(l=>{
     l.data.forEach(d=>{
-      csv+=${l.date},${l.focus},"${d.name}",${d.weight},"${d.reps.join('/')}",${d.difficulty},${d.form}\n;
+      csv+=`${l.date},${l.focus},"${d.name}",${d.weight},"${d.reps.join('/')}",${d.difficulty},${d.form}\n`;
     });
   });
   return csv;
 }
-
-/* --- share CSV via Android share sheet --- */
 function shareCSV(){
   if(!sfState.logs.length){alert('No data to share');return;}
   const csv=makeCSV();
@@ -498,15 +552,13 @@ function shareCSV(){
       .catch(()=>alert('Share cancelled'));
   }else if(navigator.share){
     const url=URL.createObjectURL(blob);
-    navigator.share({title:'SavFit Data',text:csv,url})
+    navigator.share({title:'SavFit Data',text:'Workout log from SavFit 💪',url})
       .finally(()=>URL.revokeObjectURL(url));
   }else{
-    /* fallback: copy CSV text */
-    navigator.clipboard.writeText(csv).then(()=>alert('CSV copied to clipboard'));
+    navigator.clipboard.writeText(csv)
+      .then(()=>alert('CSV copied to clipboard'));
   }
 }
-
-/* --- import CSV (restore) --- */
 function importCSV(e){
   const f=e.target.files[0];if(!f)return;
   const r=new FileReader();
@@ -514,14 +566,11 @@ function importCSV(e){
     const lines=ev.target.result.trim().split(/\r?\n/).slice(1);
     const logs=[];
     lines.forEach(line=>{
-      const [date,focus,name,w,reps,diff,form]=line.split(/,(?=(?:[^"]"[^"]*")[^"]$)/);
-      let log=logs.find(x=>x.date===date&&x.focus===focus);
+      const [date,focus,name,w,reps,diff,form]=line.split(/,(?=(?:[^"]*"[^"]*")*[^"]*$)/);
+      let log=logs.find(x=>x.date===date && x.focus===focus);
       if(!log){log={date,focus,data:[]};logs.push(log);}
-      log.data.push({
-        name:name.replace(/"/g,''),weight:w,
-        reps:reps.replace(/"/g,'').split('/'),
-        difficulty:diff,form
-      });
+      log.data.push({name:name.replace(/"/g,''),weight:w,
+        reps:reps.replace(/"/g,'').split('/'),difficulty:diff,form});
     });
     sfState.logs=logs;
     localStorage.setItem('savfitState',JSON.stringify(sfState));
@@ -530,12 +579,14 @@ function importCSV(e){
   r.readAsText(f);
 }
 
-/* ========== Settings ========== */
+/* ========== Settings = ========= */
 function renderSettings(){
   const el=document.getElementById('settings');
   el.innerHTML=`<h2>Settings</h2>
-    <label>Default rest (sec): <input type="number" id="restInput" min="5" max="300" value="${localStorage.getItem('restTime')||60}"></label><br>
-    <label><input type="checkbox" id="vibChk" ${localStorage.getItem('vib')!=='0'?'checked':''}> Enable vibration</label><br>
+    <label>Default rest (sec): <input type="number" id="restInput" min="5" max="300"
+      value="${localStorage.getItem('restTime')||60}"></label><br>
+    <label><input type="checkbox" id="vibChk"
+      ${localStorage.getItem('vib')!=='0'?'checked':''}> Enable vibration</label><br>
     <button onclick="saveSettings()">Save Settings</button>
     <p>Version 1.0 🏋️</p>`;
 }
@@ -543,66 +594,6 @@ function saveSettings(){
   localStorage.setItem('restTime',document.getElementById('restInput').value);
   localStorage.setItem('vib',document.getElementById('vibChk').checked?'1':'0');
   alert('Settings saved.');
-}
- /* ========== Exercise Log Comparison (SavFit 1.0) ========== */
-
-/* --- renderLog with Compare button --- */
-function renderLog(){
-  const el=document.getElementById('log');
-  el.innerHTML='<h2>Exercise Log</h2>';
-  if(!sfState.logs.length){el.innerHTML+='<p>No workouts saved yet.</p>';return;}
-  sfState.logs.slice().reverse().forEach((l,i)=>{
-    const c=document.createElement('div');c.className='card';
-    c.innerHTML=<strong>${l.date}</strong> – ${l.focus}
-      <button onclick="viewWorkout(${sfState.logs.length-1-i})">View</button>;
-    el.appendChild(c);
-  });
-  el.innerHTML+=<button onclick="openCompare()">🔍 Compare Workouts</button>;
-}
-
-/* --- open comparison selector --- */
-function openCompare(){
-  if(sfState.logs.length<2){alert('Need at least 2 workouts to compare.');return;}
-  const modal=document.createElement('div');
-  modal.className='notes-popup';
-  modal.style.maxWidth='380px';
-  const opts=sfState.logs.map((l,i)=><option value="${i}">${l.date} – ${l.focus}</option>).join('');
-  modal.innerHTML=<h3>Compare Workouts</h3>
-    <label>Workout 1 <select id="cmp1">${opts}</select></label><br>
-    <label>Workout 2 <select id="cmp2">${opts}</select></label><br>
-    <button onclick="doCompare()">Compare</button>
-    <button onclick="this.parentElement.remove()">Cancel</button>;
-  document.body.appendChild(modal);
-  modal.style.display='block';
-}
-
-/* --- perform comparison --- */
-function doCompare(){
-  const i1=parseInt(document.getElementById('cmp1').value);
-  const i2=parseInt(document.getElementById('cmp2').value);
-  if(isNaN(i1)||isNaN(i2)||i1===i2){alert('Choose two different workouts.');return;}
-  const w1=sfState.logs[i1], w2=sfState.logs[i2];
-  const allNames=[...new Set([...w1.data.map(d=>d.name),...w2.data.map(d=>d.name)])];
-  const rows=allNames.map(n=>{
-    const a=w1.data.find(d=>d.name===n)||{};
-    const b=w2.data.find(d=>d.name===n)||{};
-    return <tr><td>${n}</td>
-      <td>${a.weight||'-'}</td><td>${a.reps?a.reps.join('/'):'-'}</td>
-      <td>${b.weight||'-'}</td><td>${b.reps?b.reps.join('/'):'-'}</td></tr>;
-  }).join('');
-  const pop=document.createElement('div');
-  pop.className='notes-popup';
-  pop.style.width='95%';pop.style.maxWidth='480px';
-  pop.innerHTML=<h3>${w1.date} vs ${w2.date}</h3>
-    <table style="width:100%;color:#fff;font-size:13px;border-collapse:collapse;">
-      <tr style="color:var(--accent)">
-        <th>Exercise</th><th>${w1.focus}</th><th>Reps</th>
-        <th>${w2.focus}</th><th>Reps</th>
-      </tr>${rows}</table>
-    <button onclick="this.parentElement.remove()">Close</button>;
-  document.body.appendChild(pop);
-  pop.style.display='block';
-  document.querySelector('.notes-popup')?.remove(); // close selector
 }
 </script>
 <!-- ==== PART 4: HELP / ABOUT / SHARE / NAVIGATION ==== -->
