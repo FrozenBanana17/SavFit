@@ -639,13 +639,6 @@ function shareApp(){
 }
 
 /* ===== Navigation & Initial Render ===== */
-function renderSection(id){
-  if(id==="log")renderLog();
-  else if(id==="progress")renderProgress();
-  else if(id==="backup")renderBackup();
-  else if(id==="settings")renderSettings();
-  else if(id==="help")renderHelp();
-}
 function showSection(id){
   document.getElementById(current)?.classList.add('hidden');
   document.getElementById(id)?.classList.remove('hidden');
@@ -667,7 +660,13 @@ function navBack(){
   if(current==='menu'||current==='splash')return;
   showSection('menu');
 }
-
+function renderSection(id){
+  if(id==="log")renderLog();
+  else if(id==="progress")renderProgress();
+  else if(id==="backup")renderBackup();
+  else if(id==="settings")renderSettings();
+  else if(id==="help")renderHelp();
+}
 /* ===== SavFit 1.0 App Start ===== */
 window.addEventListener('load',()=>{
   const splash=document.getElementById('splash');
