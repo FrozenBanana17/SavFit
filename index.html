@@ -1,675 +1,187 @@
-<!DOCTYPE html>
-<html lang="en">
+﻿<!DOCTYPE html>
+<html>
 <head>
-<meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>SavFit 0.4 – Fitness Tracker</title>
-
-<!-- Chart.js -->
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
-<!-- Icons -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-
+<title>SavFit</title>
 <style>
-:root{
- --accent:#ff6600;
- --bg:#000;
- --text:#fff;
-}
-html,body{
- margin:0;padding:0;height:100%;width:100%;
- background:var(--bg);color:var(--text);
- font-family:'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
- overflow:hidden;
-}
-.hidden{display:none!important;}
-button{
- background:var(--accent);color:#fff;border:none;
- padding:10px 16px;margin:6px;font-size:16px;
- border-radius:6px;cursor:pointer;
-}
-button:active{transform:scale(0.96);}
-h1,h2,h3,h4{color:var(--accent);margin:6px 0;}
-input,select{
- padding:6px;border-radius:4px;border:1px solid #333;
- background:#111;color:#fff;font-size:15px;
-}
-.container{
- position:absolute;top:50px;left:0;width:100%;height:calc(100% - 50px);
- overflow-y:auto;padding:10px 8px;box-sizing:border-box;
-}
-.card{
- background:#111;padding:12px;border-radius:8px;margin-bottom:10px;
- box-shadow:0 0 6px rgba(255,102,0,0.2);
-}
-/* ==== SavFit 1.0 splash + top bar ==== */
-
-#topbar{
- position:fixed;top:0;left:0;width:100%;height:50px;
- background:#111;border-bottom:2px solid var(--accent);
- display:flex;align-items:center;justify-content:space-between;
- color:var(--accent);padding:0 12px;z-index:999;
- font-weight:600;letter-spacing:0.5px;
-}
-
-#topTitle{font-size:18px;margin:0;}
-
-#backBtn{
- background:none;border:none;color:var(--accent);
- font-size:22px;padding:4px 8px;cursor:pointer;
-}
-
-#splash{
- position:fixed;top:0;left:0;width:100%;height:100%;
- background:#000 url('https://i.postimg.cc/jq9R7f9B/file-00000000057471f481be9e892c4c9aed-2.jpg')
- center top no-repeat;background-size:contain;
- display:flex;flex-direction:column;align-items:center;justify-content:flex-end;
- color:var(--accent);z-index:10000;text-align:center;
-}
-
-#splash .spinner{
- border:4px solid #111;border-top:4px solid var(--accent);
- border-radius:50%;width:60px;height:60px;
- animation:spin 1s linear infinite;margin-bottom:12px;
-}
-
-#splash p{
- margin-bottom:40px;font-size:20px;font-weight:500;
- text-shadow:0 0 6px #000;
-}
-/* Main menu */
-#menu img{
- width:90%;max-width:300px;margin:20px auto;display:block;
-}
-.menu-btn{
- width:90%;max-width:320px;display:block;margin:8px auto;
-}
-/* Dashboard */
-.exercise-card{
- background:#111;padding:10px;border-radius:8px;margin:8px 0;
-}
-.exercise-header{
- display:flex;justify-content:space-between;align-items:center;
- color:var(--accent);
-}
-.sets-grid{
- display:grid;grid-template-columns:repeat(auto-fit,minmax(100px,1fr));
- gap:6px;margin-top:6px;
-}
-.notes-popup{
- position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);
- background:#000;padding:20px;border:2px solid var(--accent);
- border-radius:10px;width:90%;max-width:350px;z-index:9999;
- display:none;color:#fff;
-}
-.notes-popup ul{margin:0 0 10px 16px;text-align:left;}
-/* Modal overlay */
-.modal{
- position:fixed;top:0;left:0;width:100%;height:100%;
- background:rgba(0,0,0,0.9);display:none;
- align-items:center;justify-content:center;flex-direction:column;
- z-index:9999;color:var(--accent);
-}
-.spinner{
- border:4px solid #111;border-top:4px solid var(--accent);
- border-radius:50%;width:60px;height:60px;
- animation:spin 1s linear infinite;margin-bottom:15px;
-}
-@keyframes spin{from{transform:rotate(0);}to{transform:rotate(360deg);}}
-/* Charts */
-#progressChart{width:100%;max-width:400px;height:260px;}
-/* Scrollbar */
-::-webkit-scrollbar{width:6px;}
-::-webkit-scrollbar-thumb{background:var(--accent);}
+:root{--bg:#000;--accent:#ff6600;--card:#111;--text:#fff}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:Arial,sans-serif}button,input,select,textarea{font-size:16px;border-radius:10px;padding:10px;margin:5px}button{background:var(--accent);color:#fff;border:0}input,select,textarea{background:#111;color:#fff;border:1px solid var(--accent);width:95%}.screen{display:none;padding:65px 12px 90px}.active{display:block}.card{background:var(--card);border:1px solid var(--accent);border-radius:14px;padding:12px;margin:10px 0}.top{position:fixed;top:0;left:0;right:0;height:55px;background:#111;border-bottom:2px solid var(--accent);display:flex;align-items:center;justify-content:space-between;padding:0 12px;z-index:10;color:var(--accent);font-weight:bold}.nav{position:fixed;bottom:0;left:0;right:0;background:#111;border-top:2px solid var(--accent);display:grid;grid-template-columns:repeat(5,1fr);z-index:10}.nav button{font-size:12px;margin:2px;padding:8px}.hero{width:90%;max-width:340px;display:block;margin:10px auto;border-radius:16px}.popup{position:fixed;inset:0;background:#000c;display:none;align-items:center;justify-content:center;z-index:99}.box{background:#000;border:2px solid var(--accent);border-radius:16px;padding:20px;max-width:90%;box-shadow:0 0 20px var(--accent)}#splash{position:fixed;inset:0;background:#000 url('https://i.postimg.cc/jq9R7f9B/file-00000000057471f481be9e892c4c9aed-2.jpg') center/contain no-repeat;z-index:100;display:flex;align-items:flex-end;justify-content:center;text-align:center}.start{margin-bottom:40px}.timer{position:fixed;right:18px;bottom:85px;background:#111;border:3px solid var(--accent);color:var(--accent);width:72px;height:72px;border-radius:50%;display:none;align-items:center;justify-content:center;font-weight:bold;z-index:50}canvas{background:#111;border:1px solid var(--accent);border-radius:12px;width:100%;height:220px}.badge{display:inline-block;background:var(--accent);padding:6px 10px;border-radius:20px;margin:4px;color:#fff}.small{font-size:13px;opacity:.85}
 </style>
 </head>
 <body>
 
-<!-- Splash -->
-<div id="splash">
-  <div class="spinner"></div>
-  <p>Loading up your gains…</p>
+
+<div id="splash"><div class="start"><button onclick="startApp()">Start SavFit 💪</button><p style="color:#ff6600">Loading up your gains...</p></div></div>
+
+
+<div class="top"><button onclick="back()">←</button><span id="title">SavFit</span><span>1.3</span></div>
+
+
+<div id="menu" class="screen active">
+<img class="hero" id="menuImg" src="https://i.postimg.cc/VvwcL95D/file-00000000f1a8720a93b97d8839c5e55e.png">
+<h2 id="greeting">Welcome back 💪</h2>
+<div class="card"><h3>Today</h3><p id="todaySummary"></p><button onclick="show('dashboard')">Start Workout</button><button onclick="repeatLast()">Repeat Last Workout</button><button onclick="quickAdd()">Quick Add Workout</button></div>
+<div class="card"><h3>Coach</h3><p id="coachMsg"></p></div>
 </div>
 
-<!-- Top bar -->
-<div id="topbar" class="hidden">
-  <button id="backBtn" onclick="navBack()">←</button>
-  <h1 id="topTitle">SavFit 1.0</h1>
-  <div style="width:28px"></div>
-</div>
- 
-<!-- Sections -->
-<div id="menu" class="container hidden">
-  <img src="https://i.postimg.cc/VvwcL95D/file-00000000f1a8720a93b97d8839c5e55e.png" alt="SavFit logo">
-  <button class="menu-btn" onclick="showSection('dashboard')"><i class="fa-solid fa-dumbbell"></i> Dashboard</button>
-  <button class="menu-btn" onclick="showSection('log')"><i class="fa-solid fa-calendar-days"></i> Exercise Log</button>
-  <button class="menu-btn" onclick="showSection('progress')"><i class="fa-solid fa-chart-line"></i> Progress Summary</button>
-  <button class="menu-btn" onclick="showSection('backup')"><i class="fa-solid fa-database"></i> Backup / Restore</button>
-  <button class="menu-btn" onclick="showSection('settings')"><i class="fa-solid fa-gear"></i> Settings</button>
-  <button class="menu-btn" onclick="showSection('help')"><i class="fa-solid fa-circle-question"></i> Help / About</button>
+
+<div id="dashboard" class="screen">
+<img class="hero" id="dashImg" src="https://i.postimg.cc/jSH3RVPg/file-00000000673871f4a581a91702a2faa8.png">
+<h2>Workout</h2>
+<input type="date" id="wDate">
+<select id="focus" onchange="loadFocus()"><option value="">Select focus...</option><option>Chest & Back</option><option>Legs & Glutes</option><option>Shoulders & Mixed</option><option>Custom</option></select>
+<div id="exerciseList"></div>
+<button onclick="addExercise()">Add Exercise</button>
+<button onclick="endWorkout()">End Workout</button>
 </div>
 
-<!-- Dashboard -->
-<div id="dashboard" class="container hidden">
-  <img src="https://i.postimg.cc/jSH3RVPg/file-00000000673871f4a581a91702a2faa8.png" alt="Dashboard image" style="width:90%;max-width:320px;display:block;margin:10px auto;">
-  <h2>Workout Dashboard</h2>
-  <label>Date: <input type="date" id="workoutDate"></label><br>
-  <label>Focus: 
-   <select id="focusSelect">
-    <option>Make a selection</option>
-    <option>Chest & Back</option>
-    <option>Legs & Glutes</option>
-    <option>Shoulders & Mixed</option>
-    <option>Custom</option>
-   </select>
-  </label>
-  <div id="exerciseList"></div>
-  <button id="addExerciseBtn">➕ Add Exercise</button>
-  <button id="endWorkoutBtn">✅ End Workout</button>
+
+<div id="log" class="screen"><h2>Exercise Log</h2><div id="logList"></div></div>
+<div id="progress" class="screen"><h2>Progress</h2><select id="progSelect" onchange="drawProgress()"></select><canvas id="chart" width="360" height="220"></canvas><div id="progressInfo"></div></div>
+
+
+<div id="macros" class="screen">
+<h2>Macro Counter</h2>
+<input type="date" id="mDate">
+<input id="calTarget" type="number" placeholder="Daily calorie target">
+<input id="protTarget" type="number" placeholder="Daily protein target (g)">
+<input id="mealName" placeholder="Meal / snack name">
+<input id="mealCal" type="number" placeholder="Calories">
+<input id="mealProt" type="number" placeholder="Protein g">
+<button onclick="saveMeal()">Save Meal</button>
+<div id="macroSummary"></div>
 </div>
 
-<!-- Other section placeholders -->
-<div id="log" class="container hidden"></div>
-<div id="progress" class="container hidden"></div>
-<div id="backup" class="container hidden"></div>
-<div id="settings" class="container hidden"></div>
-<div id="help" class="container hidden"></div>
 
-<!-- Loader modal -->
-<div id="loader" class="modal">
-  <div class="spinner"></div>
-  <p>Saving your gains…</p>
+<div id="checkin" class="screen">
+<h2>Daily Check-In</h2>
+<input type="date" id="cDate">
+<select id="energy"><option>Energy 1</option><option>Energy 2</option><option>Energy 3</option><option>Energy 4</option><option>Energy 5</option></select>
+<select id="sleep"><option>Sleep 1</option><option>Sleep 2</option><option>Sleep 3</option><option>Sleep 4</option><option>Sleep 5</option></select>
+<select id="mood"><option>Mood 1</option><option>Mood 2</option><option>Mood 3</option><option>Mood 4</option><option>Mood 5</option></select>
+<textarea id="checkNote" placeholder="Notes"></textarea>
+<button onclick="saveCheckin()">Save Check-In</button>
+<div id="checkinList"></div>
 </div>
+
+
+<div id="goals" class="screen">
+<h2>Goals</h2>
+<input id="goalName" placeholder="Goal e.g. Bench 80kg">
+<input id="goalTarget" type="number" placeholder="Target number">
+<input id="goalCurrent" type="number" placeholder="Current number">
+<button onclick="saveGoal()">Save Goal</button>
+<div id="goalList"></div>
+</div>
+
+
+<div id="stats" class="screen"><h2>Weekly Overview</h2><div id="statsBox"></div><h3>Achievements</h3><div id="badges"></div></div>
+
+
+<div id="stretches" class="screen"><h2>Stretch & Mobility</h2><div id="stretchList"></div></div>
+
+
+<div id="profile" class="screen">
+<h2>Profile & Theme</h2>
+<input id="userName" placeholder="Your name">
+<input type="file" accept="image/*" onchange="avatarUpload(event)">
+<label>Background</label><input type="color" id="bgColor" value="#000000">
+<label>Accent</label><input type="color" id="accentColor" value="#ff6600">
+<button onclick="saveProfile()">Save Profile</button>
+<button onclick="resetProfile()">Reset Profile</button>
+</div>
+
+
+<div id="backup" class="screen">
+<h2>Backup / Share</h2>
+<button onclick="shareCSV()">Share CSV</button>
+<button onclick="exportJSON()">Export Backup</button>
+<input type="file" onchange="importJSON(event)">
+</div>
+
+
+<div id="help" class="screen">
+<h2>Help / FAQ</h2>
+<div class="card"><p>Log workouts, track macros, set goals, check in daily, view progress, and personalize SavFit with your name, theme and avatar.</p><p>Created for Savita by the best bro ever ❤️</p></div>
+</div>
+
+
+<div class="nav">
+<button onclick="show('menu')">Home</button><button onclick="show('dashboard')">Workout</button><button onclick="show('macros')">Macros</button><button onclick="show('progress')">Progress</button><button onclick="show('profile')">Profile</button>
+</div>
+
+
+<div id="popup" class="popup"><div class="box"><p id="popText"></p><button onclick="closePop()">OK</button></div></div>
+<div id="timer" class="timer">60</div>
+
 
 <script>
-/* Initial setup */
-let current='splash';
-function showSection(id){
-  document.getElementById(current)?.classList.add('hidden');
-  document.getElementById(id)?.classList.remove('hidden');
-  current=id;
-  document.getElementById('topbar').classList.toggle('hidden', id==='splash');
-  document.getElementById('topTitle').textContent=
-   id==='menu'?'SavFit':
-   id[0].toUpperCase()+id.slice(1);
-}
-function navBack(){
-  if(current==='menu' || current==='splash') return;
-  showSection('menu');
-}
-window.addEventListener('load',()=>{
-  setTimeout(()=>{document.getElementById('splash').classList.add('hidden');showSection('menu');},1500);
-});
-</script>
-<!-- ==== PART B: DASHBOARD / TIMER / VIBRATION ==== -->
-<script>
-/* ===== SavFit 1.0 Workout Dashboard ===== */
-const defaultExercises = {
- "Chest & Back":[
-  {name:"Flat Dumbbell Bench Press",notes:[
-   "Shoulders back and down","Feet always touching the floor",
-   "Back arch","Elbows at 45°","Power from chest not arms"]},
-  {name:"Pull-Ups or Lat Pulldown",notes:[
-   "Overhand grip just over shoulder width","Drive elbows back",
-   "Hold pull at bottom for a second"]},
-  {name:"Incline Dumbbell Bench Press",notes:[
-   "Bench 35–45°","Use knees to lift weights up"]},
-  {name:"Bent-Over Row",notes:[
-   "Back aligned, core braced","Bar pulled straight up to lower chest"]},
-  {name:"Dumbbell Fly",notes:[
-   "Lower weight, slow reps","Feel chest stretch","Slight bend in elbows"]}
- ],
- "Legs & Glutes":[
-  {name:"Back Squat",notes:[
-   "Grip close, elbows forward","Bar on upper traps","Back straight","Push through heels"]},
-  {name:"Romanian Deadlift",notes:[
-   "Legs shoulder width","Slight bend","Straight back"]},
-  {name:"Standing Calf Raise",notes:[
-   "One leg at a time","Hold top and bottom"]},
-  {name:"Seated Calf Raise",notes:[
-   "Hold top and bottom","Use step if no machine"]},
-  {name:"Walking Dumbbell Lunges",notes:[
-   "Weight on heels when pushing","Core upright"]},
-  {name:"Hip Thrust",notes:[
-   "Depth adequate","Squeeze glutes at top"]}
- ],
- "Shoulders & Mixed":[
-  {name:"Deadlift",notes:[
-   "Bar over mid-foot","Drive through heels","Tense core/back"]},
-  {name:"Overhead Barbell Press",notes:[
-   "Hands over shoulder width","Forearms straight up","Don’t flare elbows"]},
-  {name:"Dumbbell Lateral Raise",notes:[
-   "Light dumbbells","Slight bend elbows","Controlled motion"]},
-  {name:"Dumbbell Rear Delt Raise",notes:[
-   "Bent-over row stance","Feel in rear delts"]},
-  {name:"Ab Roller",notes:[
-   "Slow controlled motion","Hold extended","Tense core"]},
-  {name:"Weighted Russian Twists",notes:[
-   "Twist fully side to side","Keep tension in abs"]}
- ]
+const $=id=>document.getElementById(id);
+let state=JSON.parse(localStorage.savfit||'{"logs":[],"meals":[],"checkins":[],"goals":[],"settings":{}}');
+let currentWorkout={date:'',focus:'',data:[]}, current='menu', history=['menu'];
+const plans={
+"Chest & Back":["Flat Dumbbell Bench Press","Pull-Ups or Lat Pulldown","Incline Dumbbell Bench Press","Bent-Over Row","Dumbbell Fly"],
+"Legs & Glutes":["Back Squat","Romanian Deadlift","Standing Calf Raise","Seated Calf Raise","Walking Dumbbell Lunges","Hip Thrust"],
+"Shoulders & Mixed":["Deadlift","Overhead Barbell Press","Dumbbell Lateral Raise","Dumbbell Rear Delt Raise","Ab Roller","Weighted Russian Twists"]
 };
-const optionalExercises=[
- "Bicep Curls","Hammer Curls","Skull Crushers","Close-Grip Bench",
- "Tricep Hybrid","5-Minute Core Blast","Wood Cutter","Leg Extension","Hamstring Curl"
-];
+const extras=["Bicep Curls","Hammer Curls","Skull Crushers","Close-Grip Bench","Tricep Hybrid","5-Minute Core Blast","Wood Cutter","Leg Extension","Hamstring Curl","Bicycle Crunches"];
+const notes={
+"Flat Dumbbell Bench Press":["Shoulders back and down","Feet on floor","Elbows 45 degrees","Power from chest"],
+"Back Squat":["Bar on traps","Core tight","Push through heels","Knees out"],
+"Deadlift":["Bar over mid-foot","Back tight","Drive through heels"],
+"Hip Thrust":["Full depth","Squeeze glutes at top"]
+};
+function save(){localStorage.savfit=JSON.stringify(state)}
+function pop(t){$('popText').innerText=t;$('popup').style.display='flex'}function closePop(){$('popup').style.display='none'}
+function show(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));$(id).classList.add('active');$('title').innerText='SavFit 1.3';history.push(id);current=id;render(id)}
+function back(){if(history.length>1){history.pop();show(history.pop()||'menu')}}
+function startApp(){$('splash').style.display='none';applyProfile();render('menu')}
+function today(){return new Date().toISOString().slice(0,10)}
+$('wDate').value=today();$('mDate').value=today();$('cDate').value=today();
 
-let sfState=JSON.parse(localStorage.getItem('savfitState')||'{"logs":[]}');
-let currentWorkout={date:"",focus:"",data:[]};
 
-const listEl=document.getElementById('exerciseList');
-const focusSel=document.getElementById('focusSelect');
-const dateInput=document.getElementById('workoutDate');
-const addBtn=document.getElementById('addExerciseBtn');
-const endBtn=document.getElementById('endWorkoutBtn');
+function applyProfile(){let p=state.profile||{};if(p.name){$('greeting').innerText=`Welcome back, ${p.name} 💪`}$('coachMsg').innerText=coach();if(p.bg)document.documentElement.style.setProperty('--bg',p.bg);if(p.accent)document.documentElement.style.setProperty('--accent',p.accent);if(p.avatar){$('menuImg').src=p.avatar;$('dashImg').src=p.avatar}}
+function saveProfile(){state.profile={name:$('userName').value||'Athlete',bg:$('bgColor').value,accent:$('accentColor').value,avatar:state.profile?.avatar||''};save();applyProfile();pop('Profile saved')}
+function resetProfile(){delete state.profile;save();location.reload()}
+function avatarUpload(e){let r=new FileReader();r.onload=()=>{state.profile=state.profile||{};state.profile.avatar=r.result;save();applyProfile();pop('Avatar saved')};r.readAsDataURL(e.target.files[0])}
 
-/* Default focus = prompt user */
-focusSel.innerHTML=`<option value="">Select focus…</option>`+
- Object.keys(defaultExercises).map(f=>`<option>${f}</option>`).join('');
-focusSel.value="";
 
-/* Populate exercises when focus chosen */
-focusSel.addEventListener('change',()=>{
-  if(!focusSel.value)return;
-  populateExercises(focusSel.value);
-});
-function populateExercises(focus){
-  listEl.innerHTML='';
-  const exList=defaultExercises[focus]||[];
-  currentWorkout.focus=focus;
-  exList.forEach(ex=>addExerciseCard(ex.name,ex.notes));
-}
+function loadFocus(){let f=$('focus').value;$('exerciseList').innerHTML='';currentWorkout={date:$('wDate').value,focus:f,data:[]};(plans[f]||[]).forEach(addCard)}
+function addCard(name){let last=lastWeight(name);let d=document.createElement('div');d.className='card';d.innerHTML=`<b>${name}</b><button onclick="this.parentElement.remove()">Delete</button><button onclick="showNotes('${name}')">Notes</button><br><input class="weight" type="number" placeholder="Weight kg" value="${last}"><select class="diff"><option>Difficulty 1</option><option>Difficulty 2</option><option selected>Difficulty 3</option><option>Difficulty 4</option><option>Difficulty 5</option></select><select class="form"><option>Form 1</option><option>Form 2</option><option selected>Form 3</option><option>Form 4</option><option>Form 5</option></select><select onchange="sets(this)">${[1,2,3,4,5,6,7,8,9,10].map(x=>`<option ${x==3?'selected':''}>${x}</option>`)}</select><div class="sets"></div><button onclick="saveEx(this)">Save</button><button onclick="rest()">Rest</button>`;$('exerciseList').appendChild(d);sets(d.querySelector('select:last-of-type'))}
+function sets(s){let box=s.parentElement.querySelector('.sets');box.innerHTML='';for(let i=1;i<=+s.value;i++)box.innerHTML+=`<input type="number" placeholder="Set ${i} reps" class="rep">`}
+function addExercise(){let all=[...new Set([...Object.values(plans).flat(),...extras])];let n=prompt('Exercise name or choose from list:\n'+all.join('\n'));if(n)addCard(n)}
+function saveEx(btn){let c=btn.parentElement,n=c.querySelector('b').innerText;let ex={name:n,weight:c.querySelector('.weight').value,difficulty:c.querySelector('.diff').value,form:c.querySelector('.form').value,reps:[...c.querySelectorAll('.rep')].map(r=>r.value)};currentWorkout.date=$('wDate').value;currentWorkout.focus=$('focus').value||'Custom';currentWorkout.data=currentWorkout.data.filter(x=>x.name!==n);currentWorkout.data.push(ex);localStorage.currentWorkout=JSON.stringify(currentWorkout);checkPR(ex);pop('Exercise saved')}
+function endWorkout(){if(!currentWorkout.data.length)return pop('Nothing saved yet');state.logs.push(currentWorkout);save();delete localStorage.currentWorkout;pop('Workout ended and saved');render('menu')}
+function lastWeight(n){for(let i=state.logs.length-1;i>=0;i--){let e=state.logs[i].data.find(x=>x.name==n);if(e)return e.weight}return''}
+function showNotes(n){pop((notes[n]||['No notes yet']).join('\n'))}
+function rest(){let t=60,el=$('timer');el.style.display='flex';let i=setInterval(()=>{el.innerText=t--;if(t<0){clearInterval(i);el.style.display='none';navigator.vibrate&&navigator.vibrate([300,150,300,150,500]);pop('Rest over!')}},1000)}
 
-/* ===== Add Exercise Card ===== */
-function addExerciseCard(name,notes=[]){
-  const card=document.createElement('div');
-  card.className='exercise-card';
-  card.innerHTML=`
-    <div class="exercise-header">
-      <strong>${name}</strong>
-      <div>
-        <button onclick="openNotes(this)" title="Notes"><i class='fa fa-note-sticky'></i></button>
-        <button onclick="removeExercise(this)" title="Delete"><i class='fa fa-trash'></i></button>
-      </div>
-    </div>
-    <label>Weight (kg): <input type="number" min="0" class="exWeight"></label><br>
-    <label>Difficulty: 
-      <select class="exDiff">${[1,2,3,4,5].map(i=>`<option>${i}</option>`).join('')}</select>
-    </label>
-    <label>Form: 
-      <select class="exForm">${[1,2,3,4,5].map(i=>`<option>${i}</option>`).join('')}</select>
-    </label><br>
-    <label>Sets:
-      <select class="exSets">${Array.from({length:10},(_,i)=>`<option ${i==2?'selected':''}>${i+1}</option>`).join('')}</select>
-    </label>
-    <div class="sets-grid"></div>
-    <button onclick="saveSet(this)">💾 Save Set</button>
-    <button onclick="startRest()">🕒 Rest</button>`;
-  card.dataset.notes=JSON.stringify(notes);
-  listEl.appendChild(card);
-  buildSetInputs(card,3);
-  card.querySelector('.exSets').addEventListener('change',e=>buildSetInputs(card,parseInt(e.target.value)));
-}
 
-/* Build reps inputs dynamically */
-function buildSetInputs(card,count){
-  const grid=card.querySelector('.sets-grid');
-  grid.innerHTML='';
-  for(let i=1;i<=count;i++){
-    const inp=document.createElement('input');
-    inp.type='number';inp.min=0;inp.placeholder=`Reps ${i}`;
-    inp.className='reps';grid.appendChild(inp);
-  }
-}
+function render(id){if(id=='menu')home();if(id=='log')renderLog();if(id=='progress')renderProgress();if(id=='macros')renderMacros();if(id=='checkin')renderCheckins();if(id=='goals')renderGoals();if(id=='stats')renderStats();if(id=='stretches')renderStretches()}
+function home(){let w=state.logs.filter(l=>week(l.date)).length;$('todaySummary').innerText=`${w} workouts this week. ${state.meals.filter(m=>m.date==today()).reduce((a,b)=>a+ +b.cal,0)} calories today.`;$('coachMsg').innerText=coach()}
+function coach(){let l=state.logs.at(-1);return l?'Nice work on your last '+l.focus+' session 🔥':'Ready to start your first session?'}
+function renderLog(){let h='<h2>Exercise Log</h2>';state.logs.slice().reverse().forEach((l,i)=>h+=`<div class=card><b>${l.date}</b> ${l.focus}<br>${l.data.map(e=>`${e.name}: ${e.weight}kg reps ${e.reps.join('/')}`).join('<br>')}</div>`);$('log').innerHTML=h||'No logs'}
+function renderProgress(){let names=[...new Set(state.logs.flatMap(l=>l.data.map(e=>e.name)))];$('progSelect').innerHTML=names.map(n=>`<option>${n}</option>`).join('');drawProgress()}
+function drawProgress(){let n=$('progSelect').value,pts=[];state.logs.forEach(l=>{let e=l.data.find(x=>x.name==n);if(e)pts.push({d:l.date,w:+e.weight,e})});let c=$('chart'),x=c.getContext('2d');x.clearRect(0,0,c.width,c.height);x.strokeStyle=getComputedStyle(document.documentElement).getPropertyValue('--accent');x.beginPath();let max=Math.max(...pts.map(p=>p.w),1);pts.forEach((p,i)=>{let px=30+i*(300/Math.max(pts.length-1,1)),py=190-(p.w/max)*160;i?x.lineTo(px,py):x.moveTo(px,py);x.fillText(p.d,px-20,210);x.fillText(p.w+'kg',5,py)});x.stroke();$('progressInfo').innerText=n?`Tracking ${n}`:'No data yet'}
+function checkPR(e){let best=0;state.logs.forEach(l=>l.data.forEach(x=>{if(x.name==e.name)best=Math.max(best,+x.weight)}));if(+e.weight>best&&best>0)pop('New PR! '+e.name+' '+e.weight+'kg 🎉')}
 
-/* Remove exercise */
-function removeExercise(btn){btn.closest('.exercise-card').remove();}
 
-/* Notes popup */
-function openNotes(btn){
-  const notes=JSON.parse(btn.closest('.exercise-card').dataset.notes||'[]');
-  const pop=document.createElement('div');
-  pop.className='notes-popup';
-  pop.innerHTML=`<ul>${notes.map(n=>`<li>${n}</li>`).join('')}</ul>
-  <button onclick="this.parentElement.remove()">Close</button>`;
-  document.body.appendChild(pop);pop.style.display='block';
-}
-
-/* Save set */
-function saveSet(btn){
-  const card=btn.closest('.exercise-card');
-  const name=card.querySelector('strong').innerText;
-  const w=parseFloat(card.querySelector('.exWeight').value)||0;
-  const d=card.querySelector('.exDiff').value;
-  const f=card.querySelector('.exForm').value;
-  const reps=[...card.querySelectorAll('.reps')].map(r=>r.value||0);
-  let ex=currentWorkout.data.find(e=>e.name===name);
-  if(!ex){ex={name,weight:w,difficulty:d,form:f,reps};currentWorkout.data.push(ex);}
-  else{ex.weight=w;ex.difficulty=d;ex.form=f;ex.reps=reps;}
-  localStorage.setItem('savfitCurrent',JSON.stringify(currentWorkout));
-  vibrate(40);
-}
-
-/* ===== Floating Rest Timer ===== */
-let restInterval;
-function startRest(){
-  stopRest();
-  const time=parseInt(localStorage.getItem('restTime')||'60');
-  let sec=time;
-  const float=document.createElement('div');
-  float.id='restCircle';
-  float.style.cssText=`
-    position:fixed;bottom:20px;right:20px;width:70px;height:70px;
-    border-radius:50%;background:#111;border:3px solid var(--accent);
-    color:var(--accent);font-weight:600;font-size:18px;
-    display:flex;align-items:center;justify-content:center;
-    z-index:9999;box-shadow:0 0 8px var(--accent);`;
-  float.innerText=sec;
-  document.body.appendChild(float);
-  restInterval=setInterval(()=>{
-    sec--;float.innerText=sec;
-    if(sec<=0){stopRest();vibrate(800);}
-  },1000);
-}
-function stopRest(){
-  if(restInterval){clearInterval(restInterval);restInterval=null;}
-  const c=document.getElementById('restCircle');if(c)c.remove();
-}
-
-/* ===== Add Exercise manually ===== */
-addBtn.addEventListener('click',()=>{
-  const all=[...Object.values(defaultExercises).flat().map(e=>e.name),...optionalExercises];
-  const name=prompt("Add Exercise:\nChoose or type new:",all[0]||"");
-  if(name){addExerciseCard(name);}
-});
-
-/* ===== End Workout ===== */
-endBtn.addEventListener('click',()=>{
-  currentWorkout.date=dateInput.value||new Date().toISOString().slice(0,10);
-  if(!currentWorkout.focus){alert("Select a focus first");return;}
-  if(!currentWorkout.data.length){alert("No exercises recorded");return;}
-  sfState.logs.push(JSON.parse(JSON.stringify(currentWorkout)));
-  localStorage.setItem('savfitState',JSON.stringify(sfState));
-  localStorage.removeItem('savfitCurrent');
-  alert("Workout saved ✅");
-  currentWorkout={date:"",focus:"",data:[]};
-  showSection('menu');
-});
-
-/* ===== Vibration helper ===== */
-function vibrate(ms){
-  try{
-    if(navigator.vibrate)navigator.vibrate(ms);
-    else if(window.AndroidInterface)AndroidInterface.vibrate(ms);
-  }catch(e){}
-}
-</script>
-<!-- ==== SECTION 3 — LOG / PROGRESS / BACKUP / SETTINGS (FINAL SavFit 1.0) ==== -->
-<script>
-/* ========== Exercise Log = ========== */
-function renderLog(){
-  const el=document.getElementById('log');
-  el.innerHTML='<h2>Exercise Log</h2>';
-  if(!sfState.logs.length){
-    el.innerHTML+='<p>No workouts saved yet.</p>';
-    return;
-  }
-  sfState.logs.slice().reverse().forEach((l,i)=>{
-    const c=document.createElement('div');
-    c.className='card';
-    c.innerHTML=`<strong>${l.date}</strong> – ${l.focus}
-      <button onclick="viewWorkout(${sfState.logs.length-1-i})">View</button>`;
-    el.appendChild(c);
-  });
-  el.innerHTML+=`<button onclick="openCompare()">🔍 Compare Workouts</button>`;
-}
-
-function viewWorkout(idx){
-  const l=sfState.logs[idx];
-  const det=document.createElement('div');
-  det.className='notes-popup';
-  det.innerHTML=`<h3>${l.date} – ${l.focus}</h3>
-    <table style="width:100%;color:#fff;font-size:13px;border-collapse:collapse;">
-      <tr style="color:var(--accent)">
-        <th>Exercise</th><th>Weight (kg)</th><th>Reps</th><th>Diff</th><th>Form</th>
-      </tr>
-      ${l.data.map(d=>`<tr><td>${d.name}</td><td>${d.weight}</td>
-        <td>${d.reps.join('/')}</td><td>${d.difficulty}</td><td>${d.form}</td></tr>`).join('')}
-    </table>
-    <button onclick="this.parentElement.remove()">Close</button>`;
-  document.body.appendChild(det);
-  det.style.display='block';
-}
-
-/* ========== Compare Workouts = ========= */
-function openCompare(){
-  if(sfState.logs.length<2){alert('Need at least 2 workouts to compare.');return;}
-  const modal=document.createElement('div');
-  modal.className='notes-popup';modal.style.maxWidth='380px';
-  const opts=sfState.logs.map((l,i)=>`<option value="${i}">${l.date} – ${l.focus}</option>`).join('');
-  modal.innerHTML=`<h3>Compare Workouts</h3>
-    <label>Workout 1 <select id="cmp1">${opts}</select></label><br>
-    <label>Workout 2 <select id="cmp2">${opts}</select></label><br>
-    <button onclick="doCompare()">Compare</button>
-    <button onclick="this.parentElement.remove()">Cancel</button>`;
-  document.body.appendChild(modal);
-  modal.style.display='block';
-}
-
-function doCompare(){
-  const i1=parseInt(document.getElementById('cmp1').value);
-  const i2=parseInt(document.getElementById('cmp2').value);
-  if(isNaN(i1)||isNaN(i2)||i1===i2){alert('Choose two different workouts.');return;}
-  const w1=sfState.logs[i1], w2=sfState.logs[i2];
-  const allNames=[...new Set([...w1.data.map(d=>d.name),...w2.data.map(d=>d.name)])];
-  const rows=allNames.map(n=>{
-    const a=w1.data.find(d=>d.name===n)||{};
-    const b=w2.data.find(d=>d.name===n)||{};
-    return `<tr><td>${n}</td>
-      <td>${a.weight||'-'}</td><td>${a.reps?a.reps.join('/'):'-'}</td>
-      <td>${b.weight||'-'}</td><td>${b.reps?b.reps.join('/'):'-'}</td></tr>`;
-  }).join('');
-  const pop=document.createElement('div');
-  pop.className='notes-popup';
-  pop.style.width='95%';pop.style.maxWidth='480px';
-  pop.innerHTML=`<h3>${w1.date} vs ${w2.date}</h3>
-    <table style="width:100%;color:#fff;font-size:13px;border-collapse:collapse;">
-      <tr style="color:var(--accent)">
-        <th>Exercise</th><th>${w1.focus}</th><th>Reps</th>
-        <th>${w2.focus}</th><th>Reps</th>
-      </tr>${rows}</table>
-    <button onclick="this.parentElement.remove()">Close</button>`;
-  document.body.appendChild(pop);
-  pop.style.display='block';
-  document.querySelector('.notes-popup')?.remove(); // close selector
-}
-
-/* ========== Progress Chart = ========= */
-function renderProgress(){
-  const el=document.getElementById('progress');
-  el.innerHTML=`<h2>Progress Summary</h2>
-  <select id="progSelect"></select>
-  <canvas id="progressChart"></canvas>`;
-  const s=document.getElementById('progSelect');
-  const exNames=[...new Set(sfState.logs.flatMap(l=>l.data.map(d=>d.name)))];
-  if(!exNames.length){el.innerHTML+='<p>No exercise data yet.</p>';return;}
-  exNames.forEach(n=>{
-    const o=document.createElement('option');o.text=n;o.value=n;s.appendChild(o);
-  });
-  s.addEventListener('change',()=>drawChart(s.value));
-  drawChart(exNames[0]);
-}
-
-function drawChart(name){
-  const ctx=document.getElementById('progressChart');
-  const data=sfState.logs.filter(l=>l.data.some(d=>d.name===name))
-    .map(l=>{
-      const d=l.data.find(x=>x.name===name);
-      return {x:l.date,y:parseFloat(d.weight)||0,detail:d};
-    });
-  if(window.progChart)window.progChart.destroy();
-  window.progChart=new Chart(ctx,{
-    type:'line',
-    data:{datasets:[{label:name,data,
-      borderColor:'#ff6600',backgroundColor:'rgba(255,102,0,0.3)',tension:0.3}]},
-    options:{
-      scales:{x:{type:'category',labels:data.map(p=>p.x)}},
-      plugins:{legend:{labels:{color:'#fff'}}},
-      onClick:(evt,els)=>{
-        if(els.length){
-          const pt=data[els[0].index];
-          alert(`${pt.x}\n${pt.detail.name}\nWeight:${pt.detail.weight}kg\nReps:${pt.detail.reps.join('/')}\nDiff:${pt.detail.difficulty}\nForm:${pt.detail.form}`);
-        }
-      }
-    }
-  });
-}
-
-/* ========== Backup / Share / Restore = ========= */
-function renderBackup(){
-  const el=document.getElementById('backup');
-  el.innerHTML=`<h2>Backup / Share</h2>
-  <button onclick="shareCSV()">📤 Share Workout Data (CSV)</button>
-  <input type="file" id="fileInput" accept=".csv" style="display:none" onchange="importCSV(event)">
-  <button onclick="document.getElementById('fileInput').click()">📥 Import CSV</button>`;
-}
-function makeCSV(){
-  let csv='Date,Focus,Exercise,Weight,Reps,Difficulty,Form\n';
-  sfState.logs.forEach(l=>{
-    l.data.forEach(d=>{
-      csv+=`${l.date},${l.focus},"${d.name}",${d.weight},"${d.reps.join('/')}",${d.difficulty},${d.form}\n`;
-    });
-  });
-  return csv;
-}
-function shareCSV(){
-  if(!sfState.logs.length){alert('No data to share');return;}
-  const csv=makeCSV();
-  const blob=new Blob([csv],{type:'text/csv'});
-  const fileName='SavFit_Workouts.csv';
-  const file=new File([blob],fileName,{type:'text/csv'});
-  if(navigator.canShare && navigator.canShare({files:[file]})){
-    navigator.share({files:[file],title:'SavFit Data',text:'Workout log from SavFit 💪'})
-      .catch(()=>alert('Share cancelled'));
-  }else if(navigator.share){
-    const url=URL.createObjectURL(blob);
-    navigator.share({title:'SavFit Data',text:'Workout log from SavFit 💪',url})
-      .finally(()=>URL.revokeObjectURL(url));
-  }else{
-    navigator.clipboard.writeText(csv)
-      .then(()=>alert('CSV copied to clipboard'));
-  }
-}
-function importCSV(e){
-  const f=e.target.files[0];if(!f)return;
-  const r=new FileReader();
-  r.onload=function(ev){
-    const lines=ev.target.result.trim().split(/\r?\n/).slice(1);
-    const logs=[];
-    lines.forEach(line=>{
-      const [date,focus,name,w,reps,diff,form]=line.split(/,(?=(?:[^"]*"[^"]*")*[^"]*$)/);
-      let log=logs.find(x=>x.date===date && x.focus===focus);
-      if(!log){log={date,focus,data:[]};logs.push(log);}
-      log.data.push({name:name.replace(/"/g,''),weight:w,
-        reps:reps.replace(/"/g,'').split('/'),difficulty:diff,form});
-    });
-    sfState.logs=logs;
-    localStorage.setItem('savfitState',JSON.stringify(sfState));
-    alert('Data restored ✅');
-  };
-  r.readAsText(f);
-}
-
-/* ========== Settings = ========= */
-function renderSettings(){
-  const el=document.getElementById('settings');
-  el.innerHTML=`<h2>Settings</h2>
-    <label>Default rest (sec): <input type="number" id="restInput" min="5" max="300"
-      value="${localStorage.getItem('restTime')||60}"></label><br>
-    <label><input type="checkbox" id="vibChk"
-      ${localStorage.getItem('vib')!=='0'?'checked':''}> Enable vibration</label><br>
-    <button onclick="saveSettings()">Save Settings</button>
-    <p>Version 1.0 🏋️</p>`;
-}
-function saveSettings(){
-  localStorage.setItem('restTime',document.getElementById('restInput').value);
-  localStorage.setItem('vib',document.getElementById('vibChk').checked?'1':'0');
-  alert('Settings saved.');
-}
-</script>
-<!-- ==== PART 4: HELP / ABOUT / SHARE / NAVIGATION ==== -->
-<script>
-/* ===== Help & About ===== */
-function renderHelp(){
-  const el=document.getElementById('help');
-  el.innerHTML=`
-  <h2>Help & About</h2>
-  <div class="card" style="text-align:left;">
-  <h3>Using SavFit</h3>
-  <ul>
-    <li>Select your workout focus: Chest & Back, Legs & Glutes, or Shoulders & Mixed.</li>
-    <li>Add or remove exercises as needed, or create your own.</li>
-    <li>Record weight (kg), reps, difficulty (1–5) and form (1–5).</li>
-    <li>Tap 💾 to save each exercise. Use 🕒 to start your rest timer.</li>
-    <li>Use End Workout to save your session and return home.</li>
-    <li>Open Exercise Log to view or compare previous workouts.</li>
-    <li>Progress Summary shows charts of your weights over time.</li>
-    <li>Use Backup / Restore to export or import your data as CSV.</li>
-  </ul>
-  <p style="margin-top:15px;">SavFit Version 1.0<br>Created for Savita by the best bro ever ❤️</p>`;
-}
-
-/* ===== Share App ===== */
-function shareApp(){
-  const shareData={
-    title:"SavFit 0.4",
-    text:"Track your gains 💪 with SavFit!",
-    url:window.location.href
-  };
-  if(navigator.share){navigator.share(shareData).catch(()=>{});}
-  else{prompt("Copy this SavFit link:",window.location.href);}
-}
-
-/* ===== Navigation & Initial Render ===== */
-function showSection(id){
-  document.getElementById(current)?.classList.add('hidden');
-  document.getElementById(id)?.classList.remove('hidden');
-  current=id;
-  document.getElementById('topbar').classList.toggle('hidden',id==='splash');
-  const titles={
-    menu:'SavFit 1.0',
-    dashboard:'Workout – SavFit 1.0',
-    log:'Exercise Log – SavFit 1.0',
-    progress:'Progress – SavFit 1.0',
-    backup:'Backup / Share – SavFit 1.0',
-    settings:'Settings – SavFit 1.0',
-    help:'Help / About – SavFit 1.0'
-  };
-  document.getElementById('topTitle').textContent=titles[id]||'SavFit 1.0';
-  renderSection(id);
-}
-function navBack(){
-  if(current==='menu'||current==='splash')return;
-  showSection('menu');
-}
-function renderSection(id){
-  if(id==="log")renderLog();
-  else if(id==="progress")renderProgress();
-  else if(id==="backup")renderBackup();
-  else if(id==="settings")renderSettings();
-  else if(id==="help")renderHelp();
-}
-/* ===== SavFit 1.0 App Start ===== */
-window.addEventListener('load',()=>{
-  const splash=document.getElementById('splash');
-  const spinner=document.createElement('div');
-  spinner.className='spinner';
-  splash.prepend(spinner);      // make sure spinner always visible
-  setTimeout(()=>{
-    splash.classList.add('fade');
-    splash.classList.add('hidden');
-    showSection('menu');
-  },6000); // 4 seconds
-});
+function saveMeal(){state.meals.push({date:$('mDate').value,name:$('mealName').value,cal:$('mealCal').value,prot:$('mealProt').value});save();renderMacros()}
+function renderMacros(){let d=$('mDate').value,ms=state.meals.filter(m=>m.date==d),cal=ms.reduce((a,b)=>a+ +b.cal,0),pro=ms.reduce((a,b)=>a+ +b.prot,0);$('macroSummary').innerHTML=`<div class=card>${cal}/${$('calTarget').value||0} calories<br>${pro}/${$('protTarget').value||0}g protein<br>${ms.map(m=>m.name+' '+m.cal+'cal '+m.prot+'g').join('<br>')}</div>`}
+function saveCheckin(){state.checkins.push({date:$('cDate').value,energy:$('energy').value,sleep:$('sleep').value,mood:$('mood').value,note:$('checkNote').value});save();renderCheckins()}
+function renderCheckins(){$('checkinList').innerHTML=state.checkins.slice(-7).map(c=>`<div class=card>${c.date}<br>${c.energy}, ${c.sleep}, ${c.mood}<br>${c.note}</div>`).join('')}
+function saveGoal(){state.goals.push({name:$('goalName').value,target:+$('goalTarget').value,current:+$('goalCurrent').value});save();renderGoals()}
+function renderGoals(){$('goalList').innerHTML=state.goals.map(g=>`<div class=card>${g.name}<br>${Math.round((g.current/g.target)*100)}% complete</div>`).join('')}
+function renderStats(){let vol=0;state.logs.forEach(l=>l.data.forEach(e=>vol+= (+e.weight||0)*e.reps.reduce((a,b)=>a+(+b||0),0)));$('statsBox').innerHTML=`<div class=card>Total volume: ${vol}kg<br>Workouts: ${state.logs.length}<br>Consistency: ${Math.min(100,state.logs.length*10)}%</div>`;$('badges').innerHTML=(state.logs.length>=3?'<span class=badge>3 Workouts</span>':'')+(state.logs.length>=7?'<span class=badge>7 Workouts</span>':'')}
+function renderStretches(){let s=['Hamstring Stretch - hold 30s each side','Hip Flexor Stretch - hold 30s','Chest Doorway Stretch - hold 30s','Shoulder Circles - 10 each way','Calf Stretch - hold 30s','Child Pose - 45s'];$('stretchList').innerHTML=s.map(x=>`<div class=card>${x}</div>`).join('')}
+function week(d){return (new Date()-new Date(d))/86400000<7}
+function repeatLast(){let l=state.logs.at(-1);if(!l)return pop('No previous workout');show('dashboard');$('focus').value=l.focus;currentWorkout=JSON.parse(JSON.stringify(l));$('exerciseList').innerHTML='';l.data.forEach(e=>addCard(e.name));pop('Last workout loaded')}
+function quickAdd(){let n=prompt('Exercise?'),w=prompt('Weight kg?'),r=prompt('Reps?');if(!n)return;state.logs.push({date:today(),focus:'Quick Add',data:[{name:n,weight:w,reps:[r],difficulty:'Difficulty 3',form:'Form 3'}]});save();pop('Quick workout saved')}
+function makeCSV(){let csv='Date,Focus,Exercise,Weight,Reps,Difficulty,Form\n';state.logs.forEach(l=>l.data.forEach(e=>csv+=`${l.date},${l.focus},"${e.name}",${e.weight},"${e.reps.join('/')}",${e.difficulty},${e.form}\n`));return csv}
+function shareCSV(){let blob=new Blob([makeCSV()],{type:'text/csv'}),file=new File([blob],'SavFit.csv',{type:'text/csv'});if(navigator.canShare&&navigator.canShare({files:[file]}))navigator.share({files:[file],title:'SavFit CSV'});else pop(makeCSV())}
+function exportJSON(){pop(JSON.stringify(state))}
+function importJSON(e){let r=new FileReader();r.onload=()=>{state=JSON.parse(r.result);save();pop('Backup imported')};r.readAsText(e.target.files[0])}
+applyProfile();home();
 </script>
 </body>
 </html>
