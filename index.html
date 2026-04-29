@@ -1,187 +1,2178 @@
 ﻿<!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>SavFit</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>SavFit 1.2</title>
+
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+
+
 <style>
-:root{--bg:#000;--accent:#ff6600;--card:#111;--text:#fff}
-*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:Arial,sans-serif}button,input,select,textarea{font-size:16px;border-radius:10px;padding:10px;margin:5px}button{background:var(--accent);color:#fff;border:0}input,select,textarea{background:#111;color:#fff;border:1px solid var(--accent);width:95%}.screen{display:none;padding:65px 12px 90px}.active{display:block}.card{background:var(--card);border:1px solid var(--accent);border-radius:14px;padding:12px;margin:10px 0}.top{position:fixed;top:0;left:0;right:0;height:55px;background:#111;border-bottom:2px solid var(--accent);display:flex;align-items:center;justify-content:space-between;padding:0 12px;z-index:10;color:var(--accent);font-weight:bold}.nav{position:fixed;bottom:0;left:0;right:0;background:#111;border-top:2px solid var(--accent);display:grid;grid-template-columns:repeat(5,1fr);z-index:10}.nav button{font-size:12px;margin:2px;padding:8px}.hero{width:90%;max-width:340px;display:block;margin:10px auto;border-radius:16px}.popup{position:fixed;inset:0;background:#000c;display:none;align-items:center;justify-content:center;z-index:99}.box{background:#000;border:2px solid var(--accent);border-radius:16px;padding:20px;max-width:90%;box-shadow:0 0 20px var(--accent)}#splash{position:fixed;inset:0;background:#000 url('https://i.postimg.cc/jq9R7f9B/file-00000000057471f481be9e892c4c9aed-2.jpg') center/contain no-repeat;z-index:100;display:flex;align-items:flex-end;justify-content:center;text-align:center}.start{margin-bottom:40px}.timer{position:fixed;right:18px;bottom:85px;background:#111;border:3px solid var(--accent);color:var(--accent);width:72px;height:72px;border-radius:50%;display:none;align-items:center;justify-content:center;font-weight:bold;z-index:50}canvas{background:#111;border:1px solid var(--accent);border-radius:12px;width:100%;height:220px}.badge{display:inline-block;background:var(--accent);padding:6px 10px;border-radius:20px;margin:4px;color:#fff}.small{font-size:13px;opacity:.85}
+:root{
+  --bg:#000;
+  --card:#111;
+  --accent:#ff6600;
+  --text:#fff;
+  --muted:#aaa;
+}
+
+
+*{box-sizing:border-box}
+
+
+html,body{
+  margin:0;
+  padding:0;
+  width:100%;
+  min-height:100%;
+  background:var(--bg);
+  color:var(--text);
+  font-family:Arial,Helvetica,sans-serif;
+}
+
+
+body{
+  overflow:hidden;
+}
+
+
+button,input,select,textarea{
+  font-family:inherit;
+  font-size:16px;
+}
+
+
+button{
+  background:var(--accent);
+  color:#fff;
+  border:0;
+  border-radius:12px;
+  padding:10px 14px;
+  margin:5px;
+  font-weight:bold;
+}
+
+
+button:active{
+  transform:scale(.96);
+}
+
+
+input,select,textarea{
+  width:100%;
+  background:#111;
+  color:#fff;
+  border:1px solid var(--accent);
+  border-radius:10px;
+  padding:10px;
+  margin:5px 0;
+}
+
+
+textarea{
+  min-height:80px;
+}
+
+
+h1,h2,h3{
+  color:var(--accent);
+}
+
+
+.small{
+  color:var(--muted);
+  font-size:13px;
+}
+
+
+.hidden{
+  display:none!important;
+}
+
+
+.screen{
+  display:none;
+  position:absolute;
+  top:56px;
+  bottom:58px;
+  left:0;
+  right:0;
+  overflow-y:auto;
+  padding:12px;
+  background:var(--bg);
+}
+
+
+.screen.active{
+  display:block;
+}
+
+
+.card{
+  background:var(--card);
+  border:1px solid var(--accent);
+  border-radius:16px;
+  padding:12px;
+  margin:10px 0;
+  box-shadow:0 0 8px rgba(255,102,0,.18);
+}
+
+
+.row{
+  display:flex;
+  gap:8px;
+  align-items:center;
+}
+
+
+.row > *{
+  flex:1;
+}
+
+
+.topbar{
+  position:fixed;
+  top:0;
+  left:0;
+  right:0;
+  height:56px;
+  background:#111;
+  border-bottom:2px solid var(--accent);
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:0 10px;
+  z-index:50;
+}
+
+
+.topbar-title{
+  color:var(--accent);
+  font-size:18px;
+  font-weight:bold;
+  text-align:center;
+}
+
+
+.nav{
+  position:fixed;
+  bottom:0;
+  left:0;
+  right:0;
+  height:58px;
+  background:#111;
+  border-top:2px solid var(--accent);
+  display:grid;
+  grid-template-columns:repeat(5,1fr);
+  z-index:50;
+}
+
+
+.nav button{
+  font-size:11px;
+  padding:6px 2px;
+  margin:2px;
+  border-radius:8px;
+}
+
+
+.hero{
+  display:block;
+  width:92%;
+  max-width:360px;
+  margin:12px auto;
+  border-radius:18px;
+}
+
+
+#splash{
+  position:fixed;
+  inset:0;
+  z-index:1000;
+  background:#000 url("https://i.postimg.cc/jq9R7f9B/file-00000000057471f481be9e892c4c9aed-2.jpg") center top/contain no-repeat;
+  display:flex;
+  align-items:flex-end;
+  justify-content:center;
+  text-align:center;
+  padding-bottom:38px;
+}
+
+
+.splash-panel{
+  width:90%;
+}
+
+
+.spinner{
+  width:44px;
+  height:44px;
+  border:4px solid #222;
+  border-top:4px solid var(--accent);
+  border-radius:50%;
+  animation:spin 1s linear infinite;
+  margin:0 auto 12px;
+}
+
+
+@keyframes spin{
+  to{transform:rotate(360deg)}
+}
+
+
+.popup-overlay{
+  position:fixed;
+  inset:0;
+  z-index:900;
+  background:rgba(0,0,0,.85);
+  display:none;
+  align-items:center;
+  justify-content:center;
+  padding:16px;
+}
+
+
+.popup-box{
+  width:100%;
+  max-width:360px;
+  background:#000;
+  border:2px solid var(--accent);
+  border-radius:18px;
+  padding:18px;
+  box-shadow:0 0 20px var(--accent);
+  text-align:center;
+}
+
+
+#timerBubble{
+  position:fixed;
+  right:18px;
+  bottom:76px;
+  width:74px;
+  height:74px;
+  border-radius:50%;
+  background:#111;
+  border:3px solid var(--accent);
+  color:var(--accent);
+  display:none;
+  align-items:center;
+  justify-content:center;
+  font-size:20px;
+  font-weight:bold;
+  z-index:800;
+  box-shadow:0 0 12px var(--accent);
+}
+
+
+.badge{
+  display:inline-block;
+  background:var(--accent);
+  color:#fff;
+  border-radius:18px;
+  padding:6px 10px;
+  margin:4px;
+  font-size:13px;
+}
+
+
+.exercise-title{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:8px;
+}
+
+
+.set-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(110px,1fr));
+  gap:8px;
+}
+
+
+.progress-wrap{
+  background:#222;
+  border-radius:12px;
+  overflow:hidden;
+  height:16px;
+  margin:8px 0;
+}
+
+
+.progress-bar{
+  height:100%;
+  width:0%;
+  background:var(--accent);
+}
+
+
+canvas{
+  background:#111;
+  border:1px solid var(--accent);
+  border-radius:16px;
+  padding:8px;
+  width:100%;
+  max-height:300px;
+}
+
+
+.table{
+  width:100%;
+  border-collapse:collapse;
+  font-size:13px;
+}
+
+
+.table th,.table td{
+  border:1px solid var(--accent);
+  padding:6px;
+  text-align:center;
+}
+
+
+.stretch-img{
+  width:100%;
+  max-height:180px;
+  object-fit:cover;
+  border-radius:12px;
+  margin-top:8px;
+}
 </style>
 </head>
+
+
 <body>
 
 
-<div id="splash"><div class="start"><button onclick="startApp()">Start SavFit 💪</button><p style="color:#ff6600">Loading up your gains...</p></div></div>
+<div id="splash">
+  <div class="splash-panel">
+    <div class="spinner"></div>
+    <button onclick="startApp()">Start SavFit 💪</button>
+    <p style="color:#ff6600;font-weight:bold;">Loading up your gains...</p>
+  </div>
+</div>
 
 
-<div class="top"><button onclick="back()">←</button><span id="title">SavFit</span><span>1.3</span></div>
+<div class="topbar">
+  <button onclick="goBack()">←</button>
+  <div id="topTitle" class="topbar-title">SavFit 1.2</div>
+  <button onclick="showScreen('settings')">⚙️</button>
+</div>
 
 
 <div id="menu" class="screen active">
-<img class="hero" id="menuImg" src="https://i.postimg.cc/VvwcL95D/file-00000000f1a8720a93b97d8839c5e55e.png">
-<h2 id="greeting">Welcome back 💪</h2>
-<div class="card"><h3>Today</h3><p id="todaySummary"></p><button onclick="show('dashboard')">Start Workout</button><button onclick="repeatLast()">Repeat Last Workout</button><button onclick="quickAdd()">Quick Add Workout</button></div>
-<div class="card"><h3>Coach</h3><p id="coachMsg"></p></div>
+  <img id="menuImage" class="hero" src="https://i.postimg.cc/VvwcL95D/file-00000000f1a8720a93b97d8839c5e55e.png">
+  <h2 id="welcomeText">Welcome back 💪</h2>
+
+
+  <div class="card">
+    <h3>Today</h3>
+    <p id="todaySummary">Loading...</p>
+    <button onclick="showScreen('dashboard')">Start Workout</button>
+    <button onclick="repeatLastWorkout()">Repeat Last Workout</button>
+    <button onclick="quickAddWorkout()">Quick Add</button>
+  </div>
+
+
+  <div class="card">
+    <h3>Coach Message</h3>
+    <p id="coachMessage"></p>
+  </div>
+
+
+  <div class="card">
+    <h3>Quick Access</h3>
+    <button onclick="showScreen('macros')">Macros</button>
+    <button onclick="showScreen('checkin')">Daily Check-In</button>
+    <button onclick="showScreen('goals')">Goals</button>
+    <button onclick="showScreen('stretches')">Stretch Library</button>
+  </div>
 </div>
 
 
 <div id="dashboard" class="screen">
-<img class="hero" id="dashImg" src="https://i.postimg.cc/jSH3RVPg/file-00000000673871f4a581a91702a2faa8.png">
-<h2>Workout</h2>
-<input type="date" id="wDate">
-<select id="focus" onchange="loadFocus()"><option value="">Select focus...</option><option>Chest & Back</option><option>Legs & Glutes</option><option>Shoulders & Mixed</option><option>Custom</option></select>
-<div id="exerciseList"></div>
-<button onclick="addExercise()">Add Exercise</button>
-<button onclick="endWorkout()">End Workout</button>
+  <img id="dashboardImage" class="hero" src="https://i.postimg.cc/jSH3RVPg/file-00000000673871f4a581a91702a2faa8.png">
+
+
+  <h2>Workout Dashboard</h2>
+
+
+  <label>Date</label>
+  <input id="workoutDate" type="date">
+
+
+  <label>Focus</label>
+  <select id="focusSelect" onchange="loadFocus()">
+    <option value="">Select focus...</option>
+    <option>Chest & Back</option>
+    <option>Legs & Glutes</option>
+    <option>Shoulders & Mixed</option>
+    <option>Custom</option>
+  </select>
+
+
+  <div id="exerciseList"></div>
+
+
+  <button onclick="openAddExercise()">➕ Add Exercise</button>
+  <button onclick="endWorkout()">✅ End Workout</button>
 </div>
 
 
-<div id="log" class="screen"><h2>Exercise Log</h2><div id="logList"></div></div>
-<div id="progress" class="screen"><h2>Progress</h2><select id="progSelect" onchange="drawProgress()"></select><canvas id="chart" width="360" height="220"></canvas><div id="progressInfo"></div></div>
+<div id="log" class="screen">
+  <h2>Exercise Log</h2>
+  <div id="logList"></div>
+</div>
+
+
+<div id="progress" class="screen">
+  <h2>Progress Summary</h2>
+  <select id="progressExercise" onchange="drawProgressChart()"></select>
+  <canvas id="progressChart" width="360" height="260"></canvas>
+  <div id="progressDetails"></div>
+</div>
 
 
 <div id="macros" class="screen">
-<h2>Macro Counter</h2>
-<input type="date" id="mDate">
-<input id="calTarget" type="number" placeholder="Daily calorie target">
-<input id="protTarget" type="number" placeholder="Daily protein target (g)">
-<input id="mealName" placeholder="Meal / snack name">
-<input id="mealCal" type="number" placeholder="Calories">
-<input id="mealProt" type="number" placeholder="Protein g">
-<button onclick="saveMeal()">Save Meal</button>
-<div id="macroSummary"></div>
+  <h2>Macro Counter</h2>
+
+
+  <label>Date</label>
+  <input id="macroDate" type="date">
+
+
+  <div class="card">
+    <h3>Targets</h3>
+    <input id="calorieTarget" type="number" placeholder="Daily calories target">
+    <input id="proteinTarget" type="number" placeholder="Daily protein target (g)">
+    <button onclick="saveMacroTargets()">Save Targets</button>
+  </div>
+
+
+  <div class="card">
+    <h3>Add Meal</h3>
+    <input id="mealName" placeholder="Meal / snack name">
+    <input id="mealCalories" type="number" placeholder="Calories">
+    <input id="mealProtein" type="number" placeholder="Protein g">
+    <button onclick="saveMeal()">Save Meal</button>
+  </div>
+
+
+  <div id="macroSummary"></div>
 </div>
 
 
 <div id="checkin" class="screen">
-<h2>Daily Check-In</h2>
-<input type="date" id="cDate">
-<select id="energy"><option>Energy 1</option><option>Energy 2</option><option>Energy 3</option><option>Energy 4</option><option>Energy 5</option></select>
-<select id="sleep"><option>Sleep 1</option><option>Sleep 2</option><option>Sleep 3</option><option>Sleep 4</option><option>Sleep 5</option></select>
-<select id="mood"><option>Mood 1</option><option>Mood 2</option><option>Mood 3</option><option>Mood 4</option><option>Mood 5</option></select>
-<textarea id="checkNote" placeholder="Notes"></textarea>
-<button onclick="saveCheckin()">Save Check-In</button>
-<div id="checkinList"></div>
+  <h2>Daily Check-In</h2>
+  <label>Date</label>
+  <input id="checkDate" type="date">
+
+
+  <label>Energy</label>
+  <select id="energyScore">
+    <option value="1">1 - Low</option>
+    <option value="2">2</option>
+    <option value="3" selected>3 - Okay</option>
+    <option value="4">4</option>
+    <option value="5">5 - Great</option>
+  </select>
+
+
+  <label>Sleep</label>
+  <select id="sleepScore">
+    <option value="1">1 - Poor</option>
+    <option value="2">2</option>
+    <option value="3" selected>3 - Okay</option>
+    <option value="4">4</option>
+    <option value="5">5 - Great</option>
+  </select>
+
+
+  <label>Mood</label>
+  <select id="moodScore">
+    <option value="1">1 - Rough</option>
+    <option value="2">2</option>
+    <option value="3" selected>3 - Fine</option>
+    <option value="4">4</option>
+    <option value="5">5 - Excellent</option>
+  </select>
+
+
+  <textarea id="checkNote" placeholder="Notes"></textarea>
+  <button onclick="saveCheckIn()">Save Check-In</button>
+
+
+  <div id="checkinHistory"></div>
 </div>
 
 
 <div id="goals" class="screen">
-<h2>Goals</h2>
-<input id="goalName" placeholder="Goal e.g. Bench 80kg">
-<input id="goalTarget" type="number" placeholder="Target number">
-<input id="goalCurrent" type="number" placeholder="Current number">
-<button onclick="saveGoal()">Save Goal</button>
-<div id="goalList"></div>
+  <h2>Goals</h2>
+
+
+  <div class="card">
+    <input id="goalName" placeholder="Goal e.g. Bench 80kg">
+    <input id="goalCurrent" type="number" placeholder="Current">
+    <input id="goalTarget" type="number" placeholder="Target">
+    <button onclick="saveGoal()">Save Goal</button>
+  </div>
+
+
+  <div id="goalList"></div>
 </div>
 
 
-<div id="stats" class="screen"><h2>Weekly Overview</h2><div id="statsBox"></div><h3>Achievements</h3><div id="badges"></div></div>
+<div id="stats" class="screen">
+  <h2>Stats & Achievements</h2>
+  <div id="statsBox"></div>
+  <div id="achievementBox"></div>
+</div>
 
 
-<div id="stretches" class="screen"><h2>Stretch & Mobility</h2><div id="stretchList"></div></div>
+<div id="stretches" class="screen">
+  <h2>Stretch & Mobility Library</h2>
+  <div id="stretchList"></div>
+</div>
 
 
-<div id="profile" class="screen">
-<h2>Profile & Theme</h2>
-<input id="userName" placeholder="Your name">
-<input type="file" accept="image/*" onchange="avatarUpload(event)">
-<label>Background</label><input type="color" id="bgColor" value="#000000">
-<label>Accent</label><input type="color" id="accentColor" value="#ff6600">
-<button onclick="saveProfile()">Save Profile</button>
-<button onclick="resetProfile()">Reset Profile</button>
+<div id="settings" class="screen">
+  <h2>Profile & Settings</h2>
+
+
+  <div class="card">
+    <h3>Profile</h3>
+    <input id="profileName" placeholder="Your name">
+    <input type="file" accept="image/*" onchange="uploadAvatar(event)">
+    <button onclick="saveProfile()">Save Profile</button>
+    <button onclick="resetProfile()">Reset Profile</button>
+  </div>
+
+
+  <div class="card">
+    <h3>Theme</h3>
+    <label>Background</label>
+    <input id="bgPicker" type="color" value="#000000">
+    <label>Accent</label>
+    <input id="accentPicker" type="color" value="#ff6600">
+    <button onclick="saveTheme()">Save Theme</button>
+    <button onclick="presetTheme('dark')">Dark</button>
+    <button onclick="presetTheme('neon')">Neon</button>
+    <button onclick="presetTheme('light')">Light</button>
+  </div>
+
+
+  <div class="card">
+    <h3>Rest Timer</h3>
+    <input id="restSeconds" type="number" placeholder="Rest seconds">
+    <button onclick="saveRestTime()">Save Rest Time</button>
+  </div>
 </div>
 
 
 <div id="backup" class="screen">
-<h2>Backup / Share</h2>
-<button onclick="shareCSV()">Share CSV</button>
-<button onclick="exportJSON()">Export Backup</button>
-<input type="file" onchange="importJSON(event)">
+  <h2>Backup / Export</h2>
+  <button onclick="shareCSV()">Share CSV</button>
+  <button onclick="exportBackup()">Export Backup Text</button>
+  <input type="file" accept=".json" onchange="importBackup(event)">
 </div>
 
 
 <div id="help" class="screen">
-<h2>Help / FAQ</h2>
-<div class="card"><p>Log workouts, track macros, set goals, check in daily, view progress, and personalize SavFit with your name, theme and avatar.</p><p>Created for Savita by the best bro ever ❤️</p></div>
+  <h2>Help / FAQ</h2>
+  <div class="card">
+    <p>SavFit tracks workouts, macros, goals, check-ins, achievements and progress.</p>
+    <p>Use Dashboard to log workouts, Macros to track calories/protein, and Progress to view your history.</p>
+    <p>Created for Savita by the best bro ever ❤️</p>
+  </div>
 </div>
 
 
 <div class="nav">
-<button onclick="show('menu')">Home</button><button onclick="show('dashboard')">Workout</button><button onclick="show('macros')">Macros</button><button onclick="show('progress')">Progress</button><button onclick="show('profile')">Profile</button>
+  <button onclick="showScreen('menu')">Home</button>
+  <button onclick="showScreen('dashboard')">Workout</button>
+  <button onclick="showScreen('log')">Log</button>
+  <button onclick="showScreen('progress')">Progress</button>
+  <button onclick="showScreen('macros')">Macros</button>
 </div>
 
 
-<div id="popup" class="popup"><div class="box"><p id="popText"></p><button onclick="closePop()">OK</button></div></div>
-<div id="timer" class="timer">60</div>
+<div id="popup" class="popup-overlay">
+  <div class="popup-box">
+    <p id="popupText"></p>
+    <button onclick="closePopup()">OK</button>
+  </div>
+</div>
 
 
+<div id="timerBubble">60</div>
 <script>
-const $=id=>document.getElementById(id);
-let state=JSON.parse(localStorage.savfit||'{"logs":[],"meals":[],"checkins":[],"goals":[],"settings":{}}');
-let currentWorkout={date:'',focus:'',data:[]}, current='menu', history=['menu'];
-const plans={
-"Chest & Back":["Flat Dumbbell Bench Press","Pull-Ups or Lat Pulldown","Incline Dumbbell Bench Press","Bent-Over Row","Dumbbell Fly"],
-"Legs & Glutes":["Back Squat","Romanian Deadlift","Standing Calf Raise","Seated Calf Raise","Walking Dumbbell Lunges","Hip Thrust"],
-"Shoulders & Mixed":["Deadlift","Overhead Barbell Press","Dumbbell Lateral Raise","Dumbbell Rear Delt Raise","Ab Roller","Weighted Russian Twists"]
+/* =========================
+   SAVFIT 1.2 DATA MODEL
+========================= */
+
+
+const VERSION = "1.2";
+
+
+const today = () => new Date().toISOString().slice(0,10);
+const $ = id => document.getElementById(id);
+
+
+let currentScreen = "menu";
+let historyStack = ["menu"];
+
+
+let state = JSON.parse(localStorage.getItem("savfit_state") || JSON.stringify({
+  profile:{name:"",avatar:""},
+  theme:{bg:"#000000",accent:"#ff6600"},
+  settings:{restSeconds:60,vibration:true},
+  logs:[],
+  meals:[],
+  checkins:[],
+  goals:[],
+  achievements:[],
+  customExercises:[]
+}));
+
+
+let currentWorkout = JSON.parse(localStorage.getItem("savfit_current_workout") || JSON.stringify({
+  date:today(),
+  focus:"",
+  data:[]
+}));
+
+
+function saveState(){
+  localStorage.setItem("savfit_state", JSON.stringify(state));
+}
+
+
+function saveCurrentWorkout(){
+  localStorage.setItem("savfit_current_workout", JSON.stringify(currentWorkout));
+}
+
+
+function popup(message){
+  $("popupText").innerText = message;
+  $("popup").style.display = "flex";
+}
+
+
+function closePopup(){
+  $("popup").style.display = "none";
+}
+
+
+function vibrate(pattern){
+  try{
+    if(state.settings.vibration && navigator.vibrate){
+      navigator.vibrate(pattern);
+    }
+  }catch(e){}
+}
+
+
+function showScreen(id){
+  document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));
+  $(id).classList.add("active");
+  currentScreen = id;
+  historyStack.push(id);
+
+
+  const names = {
+    menu:"SavFit 1.2",
+    dashboard:"Workout — SavFit 1.2",
+    log:"Exercise Log — SavFit 1.2",
+    progress:"Progress — SavFit 1.2",
+    macros:"Macros — SavFit 1.2",
+    checkin:"Daily Check-In — SavFit 1.2",
+    goals:"Goals — SavFit 1.2",
+    stats:"Stats — SavFit 1.2",
+    stretches:"Stretches — SavFit 1.2",
+    settings:"Settings — SavFit 1.2",
+    backup:"Backup — SavFit 1.2",
+    help:"Help — SavFit 1.2"
+  };
+
+
+  $("topTitle").innerText = names[id] || "SavFit 1.2";
+  renderScreen(id);
+}
+
+
+function goBack(){
+  if(historyStack.length <= 1){
+    showScreen("menu");
+    return;
+  }
+  historyStack.pop();
+  const previous = historyStack.pop() || "menu";
+  showScreen(previous);
+}
+
+
+function startApp(){
+  $("splash").style.display = "none";
+  applyProfile();
+  renderScreen("menu");
+}
+
+
+/* =========================
+   EXERCISE DATABASE
+========================= */
+
+
+const exerciseNotes = {
+  "Flat Dumbbell Bench Press":[
+    "Shoulders back and down",
+    "Feet always touching the floor",
+    "Keep a controlled back arch",
+    "Elbows at roughly 45 degrees",
+    "Drive using chest, not just arms"
+  ],
+  "Pull-Ups or Lat Pulldown":[
+    "Overhand grip just wider than shoulders",
+    "Drive elbows back, don’t just pull with hands",
+    "Pause briefly at the bottom",
+    "Use slow controlled reps"
+  ],
+  "Incline Dumbbell Bench Press":[
+    "Bench angle around 35–45 degrees",
+    "Use knees to help bring weights up",
+    "Keep shoulders packed",
+    "Control the lowering phase"
+  ],
+  "Bent-Over Row":[
+    "Keep back aligned and core braced",
+    "Pull toward lower chest",
+    "Drive elbows back",
+    "Avoid pulling only with arms"
+  ],
+  "Dumbbell Fly":[
+    "Use lighter weight",
+    "Keep slight elbow bend",
+    "Feel chest stretch at bottom",
+    "Move slowly and stay controlled"
+  ],
+  "Back Squat":[
+    "Bar on upper traps, not neck",
+    "Brace core hard",
+    "Keep back firm and straight",
+    "Push through heels",
+    "Keep knees outward"
+  ],
+  "Romanian Deadlift":[
+    "Overhand grip",
+    "Slight knee bend",
+    "Hinge at hips",
+    "Feel hamstring and glute stretch",
+    "Keep core tight"
+  ],
+  "Standing Calf Raise":[
+    "Use full range",
+    "Pause at bottom",
+    "Pause at top",
+    "Control each rep"
+  ],
+  "Seated Calf Raise":[
+    "Use full stretch",
+    "Pause at top",
+    "Slow controlled movement"
+  ],
+  "Walking Dumbbell Lunges":[
+    "Dumbbell in each hand",
+    "Keep torso upright",
+    "Push through heel",
+    "Brace core"
+  ],
+  "Hip Thrust":[
+    "Use adequate depth",
+    "Squeeze glutes at the top",
+    "Use padding if needed",
+    "Keep movement controlled"
+  ],
+  "Deadlift":[
+    "Start with weight on ground",
+    "Bar over mid-foot",
+    "Brace core and back",
+    "Drive through heels",
+    "Control bar back down"
+  ],
+  "Overhead Barbell Press":[
+    "Hands just wider than shoulders",
+    "Forearms vertical",
+    "Don’t flare elbows",
+    "Finish with hands above head"
+  ],
+  "Dumbbell Lateral Raise":[
+    "Use light dumbbells",
+    "Slight elbow bend",
+    "Lift to shoulder height",
+    "Do not rotate hands",
+    "Control up and down"
+  ],
+  "Dumbbell Rear Delt Raise":[
+    "Use bent-over row position",
+    "Move dumbbells slightly backward",
+    "Feel rear delts, not traps"
+  ],
+  "Ab Roller":[
+    "Start on knees",
+    "Keep core tight",
+    "Move slowly",
+    "Hold briefly when extended"
+  ],
+  "Weighted Russian Twists":[
+    "Keep tension in abs",
+    "Twist fully each side",
+    "Feet up if possible"
+  ],
+  "Bicycle Crunches":[
+    "Opposite elbow to knee",
+    "Rotate through core",
+    "Control each rep"
+  ],
+  "Bicep Curls":[
+    "Keep elbows close",
+    "Avoid swinging",
+    "Control lowering phase"
+  ],
+  "Hammer Curls":[
+    "Neutral grip",
+    "Keep elbows still",
+    "Squeeze at top"
+  ],
+  "Skull Crushers":[
+    "Keep elbows fixed",
+    "Lower near forehead",
+    "Extend with control"
+  ],
+  "Close-Grip Bench":[
+    "Hands around shoulder width",
+    "Keep elbows tucked",
+    "Drive through triceps"
+  ],
+  "Tricep Hybrid":[
+    "Keep elbows tight",
+    "Controlled movement",
+    "Feel triceps working"
+  ],
+  "5-Minute Core Blast":[
+    "Plank",
+    "Side plank",
+    "Switch sides",
+    "V-hold",
+    "Back to plank"
+  ],
+  "Wood Cutter":[
+    "Twist from core",
+    "Move from hip height to head height",
+    "Control both directions"
+  ],
+  "Leg Extension":[
+    "Squeeze quads at top",
+    "Lower slowly",
+    "Avoid locking knees hard"
+  ],
+  "Hamstring Curl":[
+    "Squeeze hamstrings",
+    "Control return phase",
+    "Avoid swinging"
+  ]
 };
-const extras=["Bicep Curls","Hammer Curls","Skull Crushers","Close-Grip Bench","Tricep Hybrid","5-Minute Core Blast","Wood Cutter","Leg Extension","Hamstring Curl","Bicycle Crunches"];
-const notes={
-"Flat Dumbbell Bench Press":["Shoulders back and down","Feet on floor","Elbows 45 degrees","Power from chest"],
-"Back Squat":["Bar on traps","Core tight","Push through heels","Knees out"],
-"Deadlift":["Bar over mid-foot","Back tight","Drive through heels"],
-"Hip Thrust":["Full depth","Squeeze glutes at top"]
+
+
+const workoutPlans = {
+  "Chest & Back":[
+    "Flat Dumbbell Bench Press",
+    "Pull-Ups or Lat Pulldown",
+    "Incline Dumbbell Bench Press",
+    "Bent-Over Row",
+    "Dumbbell Fly"
+  ],
+  "Legs & Glutes":[
+    "Back Squat",
+    "Romanian Deadlift",
+    "Standing Calf Raise",
+    "Seated Calf Raise",
+    "Walking Dumbbell Lunges",
+    "Hip Thrust"
+  ],
+  "Shoulders & Mixed":[
+    "Deadlift",
+    "Overhead Barbell Press",
+    "Dumbbell Lateral Raise",
+    "Dumbbell Rear Delt Raise",
+    "Ab Roller",
+    "Weighted Russian Twists",
+    "Bicycle Crunches"
+  ]
 };
-function save(){localStorage.savfit=JSON.stringify(state)}
-function pop(t){$('popText').innerText=t;$('popup').style.display='flex'}function closePop(){$('popup').style.display='none'}
-function show(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));$(id).classList.add('active');$('title').innerText='SavFit 1.3';history.push(id);current=id;render(id)}
-function back(){if(history.length>1){history.pop();show(history.pop()||'menu')}}
-function startApp(){$('splash').style.display='none';applyProfile();render('menu')}
-function today(){return new Date().toISOString().slice(0,10)}
-$('wDate').value=today();$('mDate').value=today();$('cDate').value=today();
 
 
-function applyProfile(){let p=state.profile||{};if(p.name){$('greeting').innerText=`Welcome back, ${p.name} 💪`}$('coachMsg').innerText=coach();if(p.bg)document.documentElement.style.setProperty('--bg',p.bg);if(p.accent)document.documentElement.style.setProperty('--accent',p.accent);if(p.avatar){$('menuImg').src=p.avatar;$('dashImg').src=p.avatar}}
-function saveProfile(){state.profile={name:$('userName').value||'Athlete',bg:$('bgColor').value,accent:$('accentColor').value,avatar:state.profile?.avatar||''};save();applyProfile();pop('Profile saved')}
-function resetProfile(){delete state.profile;save();location.reload()}
-function avatarUpload(e){let r=new FileReader();r.onload=()=>{state.profile=state.profile||{};state.profile.avatar=r.result;save();applyProfile();pop('Avatar saved')};r.readAsDataURL(e.target.files[0])}
+const optionalExercises = [
+  "Bicep Curls",
+  "Hammer Curls",
+  "Skull Crushers",
+  "Close-Grip Bench",
+  "Tricep Hybrid",
+  "5-Minute Core Blast",
+  "Wood Cutter",
+  "Leg Extension",
+  "Hamstring Curl"
+];
 
 
-function loadFocus(){let f=$('focus').value;$('exerciseList').innerHTML='';currentWorkout={date:$('wDate').value,focus:f,data:[]};(plans[f]||[]).forEach(addCard)}
-function addCard(name){let last=lastWeight(name);let d=document.createElement('div');d.className='card';d.innerHTML=`<b>${name}</b><button onclick="this.parentElement.remove()">Delete</button><button onclick="showNotes('${name}')">Notes</button><br><input class="weight" type="number" placeholder="Weight kg" value="${last}"><select class="diff"><option>Difficulty 1</option><option>Difficulty 2</option><option selected>Difficulty 3</option><option>Difficulty 4</option><option>Difficulty 5</option></select><select class="form"><option>Form 1</option><option>Form 2</option><option selected>Form 3</option><option>Form 4</option><option>Form 5</option></select><select onchange="sets(this)">${[1,2,3,4,5,6,7,8,9,10].map(x=>`<option ${x==3?'selected':''}>${x}</option>`)}</select><div class="sets"></div><button onclick="saveEx(this)">Save</button><button onclick="rest()">Rest</button>`;$('exerciseList').appendChild(d);sets(d.querySelector('select:last-of-type'))}
-function sets(s){let box=s.parentElement.querySelector('.sets');box.innerHTML='';for(let i=1;i<=+s.value;i++)box.innerHTML+=`<input type="number" placeholder="Set ${i} reps" class="rep">`}
-function addExercise(){let all=[...new Set([...Object.values(plans).flat(),...extras])];let n=prompt('Exercise name or choose from list:\n'+all.join('\n'));if(n)addCard(n)}
-function saveEx(btn){let c=btn.parentElement,n=c.querySelector('b').innerText;let ex={name:n,weight:c.querySelector('.weight').value,difficulty:c.querySelector('.diff').value,form:c.querySelector('.form').value,reps:[...c.querySelectorAll('.rep')].map(r=>r.value)};currentWorkout.date=$('wDate').value;currentWorkout.focus=$('focus').value||'Custom';currentWorkout.data=currentWorkout.data.filter(x=>x.name!==n);currentWorkout.data.push(ex);localStorage.currentWorkout=JSON.stringify(currentWorkout);checkPR(ex);pop('Exercise saved')}
-function endWorkout(){if(!currentWorkout.data.length)return pop('Nothing saved yet');state.logs.push(currentWorkout);save();delete localStorage.currentWorkout;pop('Workout ended and saved');render('menu')}
-function lastWeight(n){for(let i=state.logs.length-1;i>=0;i--){let e=state.logs[i].data.find(x=>x.name==n);if(e)return e.weight}return''}
-function showNotes(n){pop((notes[n]||['No notes yet']).join('\n'))}
-function rest(){let t=60,el=$('timer');el.style.display='flex';let i=setInterval(()=>{el.innerText=t--;if(t<0){clearInterval(i);el.style.display='none';navigator.vibrate&&navigator.vibrate([300,150,300,150,500]);pop('Rest over!')}},1000)}
+function allExercises(){
+  return [...new Set([
+    ...Object.values(workoutPlans).flat(),
+    ...optionalExercises,
+    ...state.customExercises
+  ])];
+}
 
 
-function render(id){if(id=='menu')home();if(id=='log')renderLog();if(id=='progress')renderProgress();if(id=='macros')renderMacros();if(id=='checkin')renderCheckins();if(id=='goals')renderGoals();if(id=='stats')renderStats();if(id=='stretches')renderStretches()}
-function home(){let w=state.logs.filter(l=>week(l.date)).length;$('todaySummary').innerText=`${w} workouts this week. ${state.meals.filter(m=>m.date==today()).reduce((a,b)=>a+ +b.cal,0)} calories today.`;$('coachMsg').innerText=coach()}
-function coach(){let l=state.logs.at(-1);return l?'Nice work on your last '+l.focus+' session 🔥':'Ready to start your first session?'}
-function renderLog(){let h='<h2>Exercise Log</h2>';state.logs.slice().reverse().forEach((l,i)=>h+=`<div class=card><b>${l.date}</b> ${l.focus}<br>${l.data.map(e=>`${e.name}: ${e.weight}kg reps ${e.reps.join('/')}`).join('<br>')}</div>`);$('log').innerHTML=h||'No logs'}
-function renderProgress(){let names=[...new Set(state.logs.flatMap(l=>l.data.map(e=>e.name)))];$('progSelect').innerHTML=names.map(n=>`<option>${n}</option>`).join('');drawProgress()}
-function drawProgress(){let n=$('progSelect').value,pts=[];state.logs.forEach(l=>{let e=l.data.find(x=>x.name==n);if(e)pts.push({d:l.date,w:+e.weight,e})});let c=$('chart'),x=c.getContext('2d');x.clearRect(0,0,c.width,c.height);x.strokeStyle=getComputedStyle(document.documentElement).getPropertyValue('--accent');x.beginPath();let max=Math.max(...pts.map(p=>p.w),1);pts.forEach((p,i)=>{let px=30+i*(300/Math.max(pts.length-1,1)),py=190-(p.w/max)*160;i?x.lineTo(px,py):x.moveTo(px,py);x.fillText(p.d,px-20,210);x.fillText(p.w+'kg',5,py)});x.stroke();$('progressInfo').innerText=n?`Tracking ${n}`:'No data yet'}
-function checkPR(e){let best=0;state.logs.forEach(l=>l.data.forEach(x=>{if(x.name==e.name)best=Math.max(best,+x.weight)}));if(+e.weight>best&&best>0)pop('New PR! '+e.name+' '+e.weight+'kg 🎉')}
+/* =========================
+   PROFILE / THEME
+========================= */
 
 
-function saveMeal(){state.meals.push({date:$('mDate').value,name:$('mealName').value,cal:$('mealCal').value,prot:$('mealProt').value});save();renderMacros()}
-function renderMacros(){let d=$('mDate').value,ms=state.meals.filter(m=>m.date==d),cal=ms.reduce((a,b)=>a+ +b.cal,0),pro=ms.reduce((a,b)=>a+ +b.prot,0);$('macroSummary').innerHTML=`<div class=card>${cal}/${$('calTarget').value||0} calories<br>${pro}/${$('protTarget').value||0}g protein<br>${ms.map(m=>m.name+' '+m.cal+'cal '+m.prot+'g').join('<br>')}</div>`}
-function saveCheckin(){state.checkins.push({date:$('cDate').value,energy:$('energy').value,sleep:$('sleep').value,mood:$('mood').value,note:$('checkNote').value});save();renderCheckins()}
-function renderCheckins(){$('checkinList').innerHTML=state.checkins.slice(-7).map(c=>`<div class=card>${c.date}<br>${c.energy}, ${c.sleep}, ${c.mood}<br>${c.note}</div>`).join('')}
-function saveGoal(){state.goals.push({name:$('goalName').value,target:+$('goalTarget').value,current:+$('goalCurrent').value});save();renderGoals()}
-function renderGoals(){$('goalList').innerHTML=state.goals.map(g=>`<div class=card>${g.name}<br>${Math.round((g.current/g.target)*100)}% complete</div>`).join('')}
-function renderStats(){let vol=0;state.logs.forEach(l=>l.data.forEach(e=>vol+= (+e.weight||0)*e.reps.reduce((a,b)=>a+(+b||0),0)));$('statsBox').innerHTML=`<div class=card>Total volume: ${vol}kg<br>Workouts: ${state.logs.length}<br>Consistency: ${Math.min(100,state.logs.length*10)}%</div>`;$('badges').innerHTML=(state.logs.length>=3?'<span class=badge>3 Workouts</span>':'')+(state.logs.length>=7?'<span class=badge>7 Workouts</span>':'')}
-function renderStretches(){let s=['Hamstring Stretch - hold 30s each side','Hip Flexor Stretch - hold 30s','Chest Doorway Stretch - hold 30s','Shoulder Circles - 10 each way','Calf Stretch - hold 30s','Child Pose - 45s'];$('stretchList').innerHTML=s.map(x=>`<div class=card>${x}</div>`).join('')}
-function week(d){return (new Date()-new Date(d))/86400000<7}
-function repeatLast(){let l=state.logs.at(-1);if(!l)return pop('No previous workout');show('dashboard');$('focus').value=l.focus;currentWorkout=JSON.parse(JSON.stringify(l));$('exerciseList').innerHTML='';l.data.forEach(e=>addCard(e.name));pop('Last workout loaded')}
-function quickAdd(){let n=prompt('Exercise?'),w=prompt('Weight kg?'),r=prompt('Reps?');if(!n)return;state.logs.push({date:today(),focus:'Quick Add',data:[{name:n,weight:w,reps:[r],difficulty:'Difficulty 3',form:'Form 3'}]});save();pop('Quick workout saved')}
-function makeCSV(){let csv='Date,Focus,Exercise,Weight,Reps,Difficulty,Form\n';state.logs.forEach(l=>l.data.forEach(e=>csv+=`${l.date},${l.focus},"${e.name}",${e.weight},"${e.reps.join('/')}",${e.difficulty},${e.form}\n`));return csv}
-function shareCSV(){let blob=new Blob([makeCSV()],{type:'text/csv'}),file=new File([blob],'SavFit.csv',{type:'text/csv'});if(navigator.canShare&&navigator.canShare({files:[file]}))navigator.share({files:[file],title:'SavFit CSV'});else pop(makeCSV())}
-function exportJSON(){pop(JSON.stringify(state))}
-function importJSON(e){let r=new FileReader();r.onload=()=>{state=JSON.parse(r.result);save();pop('Backup imported')};r.readAsText(e.target.files[0])}
-applyProfile();home();
+function applyProfile(){
+  const p = state.profile || {};
+  const t = state.theme || {};
+
+
+  if(t.bg) document.documentElement.style.setProperty("--bg", t.bg);
+  if(t.accent) document.documentElement.style.setProperty("--accent", t.accent);
+
+
+  $("welcomeText").innerText = p.name
+    ? `Welcome back, ${p.name} 💪`
+    : "Welcome back 💪";
+
+
+  if(p.avatar){
+    $("menuImage").src = p.avatar;
+    $("dashboardImage").src = p.avatar;
+  }
+
+
+  $("profileName").value = p.name || "";
+  $("bgPicker").value = t.bg || "#000000";
+  $("accentPicker").value = t.accent || "#ff6600";
+  $("restSeconds").value = state.settings.restSeconds || 60;
+}
+
+
+function saveProfile(){
+  state.profile.name = $("profileName").value.trim();
+  saveState();
+  applyProfile();
+  popup("Profile saved");
+}
+
+
+function resetProfile(){
+  state.profile = {name:"",avatar:""};
+  saveState();
+  applyProfile();
+  popup("Profile reset");
+}
+
+
+function uploadAvatar(event){
+  const file = event.target.files[0];
+  if(!file) return;
+
+
+  const reader = new FileReader();
+  reader.onload = () => {
+    state.profile.avatar = reader.result;
+    saveState();
+    applyProfile();
+    popup("Avatar saved");
+  };
+  reader.readAsDataURL(file);
+}
+
+
+function saveTheme(){
+  state.theme.bg = $("bgPicker").value;
+  state.theme.accent = $("accentPicker").value;
+  saveState();
+  applyProfile();
+  popup("Theme saved");
+}
+
+
+function presetTheme(type){
+  if(type === "dark"){
+    state.theme = {bg:"#000000",accent:"#ff6600"};
+  }
+  if(type === "neon"){
+    state.theme = {bg:"#05000a",accent:"#ff00ff"};
+  }
+  if(type === "light"){
+    state.theme = {bg:"#f5f5f5",accent:"#ff6600"};
+  }
+  saveState();
+  applyProfile();
+  popup("Preset theme applied");
+}
+
+
+function saveRestTime(){
+  state.settings.restSeconds = Number($("restSeconds").value) || 60;
+  saveState();
+  popup("Rest time saved");
+}
+
+
+/* =========================
+   DASHBOARD / WORKOUTS
+========================= */
+
+
+$("workoutDate").value = currentWorkout.date || today();
+$("macroDate").value = today();
+$("checkDate").value = today();
+
+
+function loadFocus(){
+  const focus = $("focusSelect").value;
+  $("exerciseList").innerHTML = "";
+
+
+  currentWorkout = {
+    date:$("workoutDate").value || today(),
+    focus,
+    data:[]
+  };
+
+
+  if(!focus) return;
+
+
+  if(focus !== "Custom"){
+    workoutPlans[focus].forEach(name => addExerciseCard(name));
+  }
+
+
+  saveCurrentWorkout();
+}
+
+
+function getLastWeight(exerciseName){
+  for(let i=state.logs.length-1;i>=0;i--){
+    const found = state.logs[i].data.find(e=>e.name===exerciseName);
+    if(found && found.weight) return found.weight;
+  }
+  return "";
+}
+
+
+function addExerciseCard(name, existingData){
+  const list = $("exerciseList");
+  const data = existingData || {};
+  const card = document.createElement("div");
+  card.className = "card exercise-card";
+  card.dataset.name = name;
+
+
+  const weight = data.weight || getLastWeight(name) || "";
+  const difficulty = data.difficulty || "3";
+  const form = data.form || "3";
+  const reps = data.reps || ["","",""];
+  const setsCount = reps.length || 3;
+
+
+  card.innerHTML = `
+    <div class="exercise-title">
+      <strong>${name}</strong>
+      <button onclick="deleteExercise(this)">Delete</button>
+    </div>
+
+
+    <button onclick="showNotes('${escapeQuotes(name)}')">Notes</button>
+
+
+    <label>Weight (kg)</label>
+    <input class="weightInput" type="number" value="${weight}" placeholder="Weight">
+
+
+    <div class="row">
+      <div>
+        <label>Difficulty</label>
+        <select class="difficultyInput">
+          ${[1,2,3,4,5].map(n=>`<option value="${n}" ${String(n)===String(difficulty)?"selected":""}>${n}</option>`).join("")}
+        </select>
+      </div>
+      <div>
+        <label>Form</label>
+        <select class="formInput">
+          ${[1,2,3,4,5].map(n=>`<option value="${n}" ${String(n)===String(form)?"selected":""}>${n}</option>`).join("")}
+        </select>
+      </div>
+    </div>
+
+
+    <label>Number of Sets</label>
+    <select class="setsInput" onchange="buildRepFields(this)">
+      ${[1,2,3,4,5,6,7,8,9,10].map(n=>`<option value="${n}" ${n===setsCount?"selected":""}>${n}</option>`).join("")}
+    </select>
+
+
+    <div class="set-grid repsBox"></div>
+
+
+    <button onclick="saveExercise(this)">Save Exercise</button>
+    <button onclick="startRestTimer()">Start Rest</button>
+  `;
+
+
+  list.appendChild(card);
+  buildRepFields(card.querySelector(".setsInput"), reps);
+}
+
+
+function buildRepFields(select, existingReps){
+  const card = select.closest(".exercise-card");
+  const box = card.querySelector(".repsBox");
+  const count = Number(select.value);
+  const old = existingReps || [...box.querySelectorAll(".repInput")].map(i=>i.value);
+
+
+  box.innerHTML = "";
+  for(let i=0;i<count;i++){
+    const input = document.createElement("input");
+    input.className = "repInput";
+    input.type = "number";
+    input.placeholder = `Set ${i+1} reps`;
+    input.value = old[i] || "";
+    box.appendChild(input);
+  }
+}
+
+
+function saveExercise(button){
+  const card = button.closest(".exercise-card");
+  const name = card.dataset.name;
+
+
+  const entry = {
+    name,
+    weight:card.querySelector(".weightInput").value,
+    difficulty:card.querySelector(".difficultyInput").value,
+    form:card.querySelector(".formInput").value,
+    reps:[...card.querySelectorAll(".repInput")].map(i=>i.value)
+  };
+
+
+  currentWorkout.date = $("workoutDate").value || today();
+  currentWorkout.focus = $("focusSelect").value || "Custom";
+  currentWorkout.data = currentWorkout.data.filter(e=>e.name!==name);
+  currentWorkout.data.push(entry);
+
+
+  saveCurrentWorkout();
+  checkPersonalBest(entry);
+  popup("Exercise saved");
+}
+
+
+function deleteExercise(button){
+  const card = button.closest(".exercise-card");
+  const name = card.dataset.name;
+  currentWorkout.data = currentWorkout.data.filter(e=>e.name!==name);
+  card.remove();
+  saveCurrentWorkout();
+}
+
+
+function openAddExercise(){
+  const existing = [...document.querySelectorAll(".exercise-card")].map(c=>c.dataset.name);
+  const available = allExercises().filter(e=>!existing.includes(e));
+  const name = prompt("Type new exercise or copy one:\n\n" + available.join("\n"));
+
+
+  if(!name) return;
+
+
+  if(!allExercises().includes(name)){
+    state.customExercises.push(name);
+    saveState();
+  }
+
+
+  addExerciseCard(name);
+}
+
+
+function endWorkout(){
+  currentWorkout.date = $("workoutDate").value || today();
+  currentWorkout.focus = $("focusSelect").value || "Custom";
+
+
+  if(currentWorkout.data.length === 0){
+    popup("No exercises recorded");
+    return;
+  }
+
+
+  state.logs.push(JSON.parse(JSON.stringify(currentWorkout)));
+  saveState();
+
+
+  localStorage.removeItem("savfit_current_workout");
+
+
+  currentWorkout = {
+    date:today(),
+    focus:"",
+    data:[]
+  };
+
+
+  $("focusSelect").value = "";
+  $("exerciseList").innerHTML = "";
+
+
+  popup("Workout saved");
+  renderHome();
+  showScreen("menu");
+}
+
+
+function restoreCurrentWorkout(){
+  if(!currentWorkout || !currentWorkout.data || currentWorkout.data.length===0) return;
+
+
+  $("workoutDate").value = currentWorkout.date || today();
+  $("focusSelect").value = currentWorkout.focus || "";
+
+
+  $("exerciseList").innerHTML = "";
+  currentWorkout.data.forEach(e=>addExerciseCard(e.name,e));
+}
+
+
+function repeatLastWorkout(){
+  if(state.logs.length===0){
+    popup("No previous workout found");
+    return;
+  }
+
+
+  const last = state.logs[state.logs.length-1];
+  showScreen("dashboard");
+  $("workoutDate").value = today();
+  $("focusSelect").value = last.focus;
+
+
+  currentWorkout = {
+    date:today(),
+    focus:last.focus,
+    data:[]
+  };
+
+
+  $("exerciseList").innerHTML = "";
+  last.data.forEach(e=>{
+    addExerciseCard(e.name,{
+      weight:e.weight,
+      difficulty:e.difficulty,
+      form:e.form,
+      reps:e.reps
+    });
+  });
+
+
+  popup("Last workout loaded");
+}
+
+
+function quickAddWorkout(){
+  const name = prompt("Exercise name?");
+  if(!name) return;
+
+
+  const weight = prompt("Weight kg?");
+  const reps = prompt("Reps?");
+
+
+  state.logs.push({
+    date:today(),
+    focus:"Quick Add",
+    data:[{
+      name,
+      weight,
+      reps:[reps],
+      difficulty:"3",
+      form:"3"
+    }]
+  });
+
+
+  saveState();
+  popup("Quick workout saved");
+}
+
+
+function showNotes(name){
+  const clean = name.replace(/\\'/g,"'");
+  const list = exerciseNotes[clean] || ["No notes saved for this exercise yet."];
+  popup(list.map(x=>"• "+x).join("\n"));
+}
+
+
+function escapeQuotes(str){
+  return str.replace(/'/g,"\\'");
+}
+
+
+/* =========================
+   TIMER
+========================= */
+
+
+let restInterval = null;
+
+
+function startRestTimer(){
+  clearInterval(restInterval);
+
+
+  let seconds = Number(state.settings.restSeconds) || 60;
+  const bubble = $("timerBubble");
+
+
+  bubble.style.display = "flex";
+  bubble.innerText = seconds;
+
+
+  restInterval = setInterval(()=>{
+    seconds--;
+    bubble.innerText = seconds;
+
+
+    if(seconds <= 0){
+      clearInterval(restInterval);
+      restInterval = null;
+      bubble.style.display = "none";
+      vibrate([300,150,300,150,500]);
+      popup("Rest complete");
+    }
+  },1000);
+}
+
+
+/* =========================
+   PERSONAL BESTS
+========================= */
+
+
+function checkPersonalBest(entry){
+  const previous = state.logs.flatMap(l=>l.data).filter(e=>e.name===entry.name);
+  const best = previous.reduce((max,e)=>Math.max(max,Number(e.weight)||0),0);
+
+
+  if(Number(entry.weight) > best && best > 0){
+    popup(`New PR! ${entry.name}: ${entry.weight}kg 🎉`);
+    unlockAchievement("New PR");
+  }
+}
+
+
+function unlockAchievement(name){
+  if(!state.achievements.includes(name)){
+    state.achievements.push(name);
+    saveState();
+  }
+}
+/* =========================
+   RENDER ROUTER
+========================= */
+
+
+function renderScreen(id){
+  if(id==="menu") renderHome();
+  if(id==="log") renderLog();
+  if(id==="progress") renderProgress();
+  if(id==="macros") renderMacros();
+  if(id==="checkin") renderCheckInHistory();
+  if(id==="goals") renderGoals();
+  if(id==="stats") renderStats();
+  if(id==="stretches") renderStretches();
+  if(id==="dashboard") restoreCurrentWorkout();
+}
+
+
+/* =========================
+   HOME
+========================= */
+
+
+function renderHome(){
+  applyProfile();
+
+
+  const weekWorkouts = state.logs.filter(l=>daysAgo(l.date)<=7).length;
+  const todayMeals = state.meals.filter(m=>m.date===today());
+  const calories = todayMeals.reduce((a,b)=>a+Number(b.calories||0),0);
+  const protein = todayMeals.reduce((a,b)=>a+Number(b.protein||0),0);
+
+
+  $("todaySummary").innerHTML = `
+    ${weekWorkouts} workouts this week<br>
+    ${calories} calories today<br>
+    ${protein}g protein today
+  `;
+
+
+  $("coachMessage").innerText = coachMessage();
+}
+
+
+function coachMessage(){
+  if(state.logs.length===0) return "Ready to start your first SavFit session?";
+  const last = state.logs[state.logs.length-1];
+
+
+  if(daysAgo(last.date)>4){
+    return "It has been a few days. Time to get back on track 🔥";
+  }
+
+
+  const recentPR = state.achievements.includes("New PR");
+  if(recentPR) return "You have already hit a PR. That is serious progress 💪";
+
+
+  return `Last session: ${last.focus}. Keep stacking wins.`;
+}
+
+
+/* =========================
+   EXERCISE LOG
+========================= */
+
+
+function renderLog(){
+  const box = $("logList");
+  box.innerHTML = "";
+
+
+  if(state.logs.length===0){
+    box.innerHTML = `<div class="card">No workouts saved yet.</div>`;
+    return;
+  }
+
+
+  const controls = document.createElement("div");
+  controls.className = "card";
+  controls.innerHTML = `
+    <h3>Compare Workouts</h3>
+    <select id="compareA">
+      ${state.logs.map((l,i)=>`<option value="${i}">${l.date} — ${l.focus}</option>`).join("")}
+    </select>
+    <select id="compareB">
+      ${state.logs.map((l,i)=>`<option value="${i}">${l.date} — ${l.focus}</option>`).join("")}
+    </select>
+    <button onclick="compareWorkouts()">Compare</button>
+  `;
+  box.appendChild(controls);
+
+
+  state.logs.slice().reverse().forEach((log,revIndex)=>{
+    const realIndex = state.logs.length-1-revIndex;
+    const card = document.createElement("div");
+    card.className = "card";
+
+
+    card.innerHTML = `
+      <h3>${log.date}</h3>
+      <p>${log.focus}</p>
+      <button onclick="viewWorkout(${realIndex})">View Workout</button>
+      <button onclick="deleteWorkout(${realIndex})">Delete</button>
+    `;
+
+
+    box.appendChild(card);
+  });
+}
+
+
+function viewWorkout(index){
+  const log = state.logs[index];
+
+
+  let html = `<strong>${log.date} — ${log.focus}</strong>\n\n`;
+
+
+  log.data.forEach(e=>{
+    html += `${e.name}\n`;
+    html += `Weight: ${e.weight || "-"}kg\n`;
+    html += `Reps: ${(e.reps||[]).join("/")}\n`;
+    html += `Difficulty: ${e.difficulty || "-"}\n`;
+    html += `Form: ${e.form || "-"}\n\n`;
+  });
+
+
+  popup(html);
+}
+
+
+function deleteWorkout(index){
+  state.logs.splice(index,1);
+  saveState();
+  renderLog();
+  popup("Workout deleted");
+}
+
+
+function compareWorkouts(){
+  const a = state.logs[Number($("compareA").value)];
+  const b = state.logs[Number($("compareB").value)];
+
+
+  if(!a || !b || a===b){
+    popup("Choose two different workouts");
+    return;
+  }
+
+
+  const names = [...new Set([...a.data.map(e=>e.name),...b.data.map(e=>e.name)])];
+
+
+  let html = `${a.date} vs ${b.date}\n\n`;
+
+
+  names.forEach(name=>{
+    const exA = a.data.find(e=>e.name===name);
+    const exB = b.data.find(e=>e.name===name);
+
+
+    html += `${name}\n`;
+    html += `${a.date}: ${exA ? exA.weight+"kg reps "+exA.reps.join("/") : "-"}\n`;
+    html += `${b.date}: ${exB ? exB.weight+"kg reps "+exB.reps.join("/") : "-"}\n\n`;
+  });
+
+
+  popup(html);
+}
+
+
+/* =========================
+   PROGRESS CHART
+========================= */
+
+
+let progressChart = null;
+
+
+function renderProgress(){
+  const select = $("progressExercise");
+  const names = [...new Set(state.logs.flatMap(l=>l.data.map(e=>e.name)))];
+
+
+  if(names.length===0){
+    select.innerHTML = `<option>No exercise data yet</option>`;
+    $("progressDetails").innerHTML = `<div class="card">Save workouts first to see progress.</div>`;
+    clearChart();
+    return;
+  }
+
+
+  select.innerHTML = names.map(n=>`<option>${n}</option>`).join("");
+  drawProgressChart();
+}
+
+
+function clearChart(){
+  const ctx = $("progressChart").getContext("2d");
+  ctx.clearRect(0,0,$("progressChart").width,$("progressChart").height);
+}
+
+
+function drawProgressChart(){
+  const name = $("progressExercise").value;
+  if(!name || name==="No exercise data yet") return;
+
+
+  const rows = [];
+
+
+  state.logs.forEach(log=>{
+    const ex = log.data.find(e=>e.name===name);
+    if(ex){
+      rows.push({
+        date:log.date,
+        weight:Number(ex.weight)||0,
+        reps:(ex.reps||[]).join("/"),
+        difficulty:ex.difficulty,
+        form:ex.form
+      });
+    }
+  });
+
+
+  const ctx = $("progressChart").getContext("2d");
+
+
+  if(progressChart) progressChart.destroy();
+
+
+  progressChart = new Chart(ctx,{
+    type:"line",
+    data:{
+      labels:rows.map(r=>r.date),
+      datasets:[{
+        label:name + " weight (kg)",
+        data:rows.map(r=>r.weight),
+        borderColor:state.theme.accent || "#ff6600",
+        backgroundColor:"rgba(255,102,0,.25)",
+        tension:.25,
+        pointRadius:6
+      }]
+    },
+    options:{
+      responsive:true,
+      plugins:{
+        legend:{labels:{color:"#fff"}}
+      },
+      scales:{
+        x:{ticks:{color:"#fff"},title:{display:true,text:"Date",color:"#fff"}},
+        y:{ticks:{color:"#fff"},title:{display:true,text:"Weight kg",color:"#fff"}}
+      },
+      onClick:(event,elements)=>{
+        if(elements.length){
+          const i = elements[0].index;
+          const r = rows[i];
+          popup(`${name}\nDate: ${r.date}\nWeight: ${r.weight}kg\nReps: ${r.reps}\nDifficulty: ${r.difficulty}\nForm: ${r.form}`);
+        }
+      }
+    }
+  });
+
+
+  $("progressDetails").innerHTML = `<div class="card">Showing ${name}</div>`;
+}
+
+
+/* =========================
+   MACROS
+========================= */
+
+
+function saveMacroTargets(){
+  state.macroTargets = {
+    calories:Number($("calorieTarget").value)||0,
+    protein:Number($("proteinTarget").value)||0
+  };
+  saveState();
+  renderMacros();
+  popup("Macro targets saved");
+}
+
+
+function saveMeal(){
+  const meal = {
+    date:$("macroDate").value || today(),
+    name:$("mealName").value || "Meal",
+    calories:Number($("mealCalories").value)||0,
+    protein:Number($("mealProtein").value)||0
+  };
+
+
+  state.meals.push(meal);
+  saveState();
+
+
+  $("mealName").value="";
+  $("mealCalories").value="";
+  $("mealProtein").value="";
+
+
+  renderMacros();
+  popup("Meal saved");
+}
+
+
+function renderMacros(){
+  const date = $("macroDate").value || today();
+  const meals = state.meals.filter(m=>m.date===date);
+  const calories = meals.reduce((a,b)=>a+Number(b.calories||0),0);
+  const protein = meals.reduce((a,b)=>a+Number(b.protein||0),0);
+
+
+  const calTarget = state.macroTargets?.calories || 0;
+  const protTarget = state.macroTargets?.protein || 0;
+
+
+  $("calorieTarget").value = calTarget || "";
+  $("proteinTarget").value = protTarget || "";
+
+
+  const calPercent = calTarget ? Math.min(100,(calories/calTarget)*100) : 0;
+  const protPercent = protTarget ? Math.min(100,(protein/protTarget)*100) : 0;
+
+
+  $("macroSummary").innerHTML = `
+    <div class="card">
+      <h3>Daily Totals</h3>
+      Calories: ${calories}/${calTarget || "-"}
+      <div class="progress-wrap"><div class="progress-bar" style="width:${calPercent}%"></div></div>
+      Protein: ${protein}g/${protTarget || "-"}g
+      <div class="progress-wrap"><div class="progress-bar" style="width:${protPercent}%"></div></div>
+      <p>${calTarget ? Math.max(0,calTarget-calories)+" calories remaining" : ""}</p>
+      <p>${protTarget ? Math.max(0,protTarget-protein)+"g protein remaining" : ""}</p>
+    </div>
+
+
+    <div class="card">
+      <h3>Meals</h3>
+      ${
+        meals.length
+        ? meals.map((m,i)=>`
+          <p>
+            ${m.name}: ${m.calories} cal, ${m.protein}g protein
+            <button onclick="deleteMeal('${date}',${i})">Delete</button>
+          </p>
+        `).join("")
+        : "No meals saved for this date."
+      }
+    </div>
+  `;
+}
+
+
+function deleteMeal(date,indexOnDate){
+  const mealsForDate = state.meals
+    .map((m,i)=>({m,i}))
+    .filter(x=>x.m.date===date);
+
+
+  const realIndex = mealsForDate[indexOnDate]?.i;
+
+
+  if(realIndex !== undefined){
+    state.meals.splice(realIndex,1);
+    saveState();
+    renderMacros();
+  }
+}
+
+
+/* =========================
+   DAILY CHECK-IN
+========================= */
+
+
+function saveCheckIn(){
+  const date = $("checkDate").value || today();
+
+
+  state.checkins = state.checkins.filter(c=>c.date!==date);
+
+
+  state.checkins.push({
+    date,
+    energy:$("energyScore").value,
+    sleep:$("sleepScore").value,
+    mood:$("moodScore").value,
+    note:$("checkNote").value
+  });
+
+
+  saveState();
+  renderCheckInHistory();
+  popup("Check-in saved");
+}
+
+
+function renderCheckInHistory(){
+  const recent = state.checkins.slice(-7).reverse();
+
+
+  $("checkinHistory").innerHTML = recent.length
+    ? recent.map(c=>`
+      <div class="card">
+        <strong>${c.date}</strong><br>
+        Energy: ${c.energy} / Sleep: ${c.sleep} / Mood: ${c.mood}<br>
+        ${c.note || ""}
+      </div>
+    `).join("")
+    : `<div class="card">No check-ins yet.</div>`;
+}
+
+
+/* =========================
+   GOALS
+========================= */
+
+
+function saveGoal(){
+  const goal = {
+    name:$("goalName").value,
+    current:Number($("goalCurrent").value)||0,
+    target:Number($("goalTarget").value)||0
+  };
+
+
+  if(!goal.name || !goal.target){
+    popup("Add a goal name and target");
+    return;
+  }
+
+
+  state.goals.push(goal);
+  saveState();
+
+
+  $("goalName").value="";
+  $("goalCurrent").value="";
+  $("goalTarget").value="";
+
+
+  renderGoals();
+  popup("Goal saved");
+}
+
+
+function renderGoals(){
+  $("goalList").innerHTML = state.goals.length
+    ? state.goals.map((g,i)=>{
+      const percent = g.target ? Math.min(100,Math.round((g.current/g.target)*100)) : 0;
+      return `
+        <div class="card">
+          <h3>${g.name}</h3>
+          ${g.current}/${g.target}
+          <div class="progress-wrap"><div class="progress-bar" style="width:${percent}%"></div></div>
+          ${percent}% complete
+          <button onclick="deleteGoal(${i})">Delete</button>
+        </div>
+      `;
+    }).join("")
+    : `<div class="card">No goals yet.</div>`;
+}
+
+
+function deleteGoal(i){
+  state.goals.splice(i,1);
+  saveState();
+  renderGoals();
+}
+
+
+/* =========================
+   STATS / ACHIEVEMENTS
+========================= */
+
+
+function renderStats(){
+  const totalWorkouts = state.logs.length;
+  const weekWorkouts = state.logs.filter(l=>daysAgo(l.date)<=7).length;
+
+
+  let totalVolume = 0;
+  state.logs.forEach(log=>{
+    log.data.forEach(e=>{
+      const reps = (e.reps||[]).reduce((a,b)=>a+(Number(b)||0),0);
+      totalVolume += (Number(e.weight)||0) * reps;
+    });
+  });
+
+
+  const consistency = Math.min(100,weekWorkouts * 34);
+
+
+  const badges = [];
+
+
+  if(totalWorkouts >= 1) badges.push("First Workout");
+  if(totalWorkouts >= 3) badges.push("3 Workouts");
+  if(totalWorkouts >= 7) badges.push("7 Workouts");
+  if(totalWorkouts >= 30) badges.push("30 Workouts");
+  if(totalVolume >= 10000) badges.push("10,000kg Club");
+
+
+  badges.forEach(unlockAchievement);
+
+
+  $("statsBox").innerHTML = `
+    <div class="card">
+      <h3>Weekly Overview</h3>
+      Workouts this week: ${weekWorkouts}<br>
+      Total workouts: ${totalWorkouts}<br>
+      Total volume: ${Math.round(totalVolume)}kg<br>
+      Consistency score: ${consistency}%
+      <div class="progress-wrap"><div class="progress-bar" style="width:${consistency}%"></div></div>
+    </div>
+  `;
+
+
+  $("achievementBox").innerHTML = `
+    <div class="card">
+      <h3>Achievements</h3>
+      ${
+        state.achievements.length
+        ? state.achievements.map(a=>`<span class="badge">${a}</span>`).join("")
+        : "No achievements yet."
+      }
+    </div>
+  `;
+}
+
+
+/* =========================
+   STRETCH LIBRARY
+========================= */
+
+
+const stretches = [
+  {group:"Legs & Glutes",name:"Hamstring Stretch",text:"Hold 30 seconds each side. Keep the back long and hinge gently."},
+  {group:"Legs & Glutes",name:"Hip Flexor Stretch",text:"Hold 30 seconds each side. Squeeze the glute of the rear leg."},
+  {group:"Legs & Glutes",name:"Calf Stretch",text:"Hold 30 seconds each side. Keep heel down."},
+  {group:"Chest & Back",name:"Doorway Chest Stretch",text:"Hold 30 seconds. Keep shoulders down and chest open."},
+  {group:"Chest & Back",name:"Lat Stretch",text:"Hold 30 seconds each side. Reach long and breathe."},
+  {group:"Shoulders & Mixed",name:"Shoulder Circles",text:"10 forwards and 10 backwards. Keep movement smooth."},
+  {group:"Shoulders & Mixed",name:"Child Pose",text:"Hold 45 seconds. Focus on deep breathing."}
+];
+
+
+function renderStretches(){
+  $("stretchList").innerHTML = stretches.map(s=>`
+    <div class="card">
+      <h3>${s.name}</h3>
+      <p class="small">${s.group}</p>
+      <p>${s.text}</p>
+    </div>
+  `).join("");
+}
+
+
+/* =========================
+   UTIL
+========================= */
+
+
+function daysAgo(date){
+  return Math.floor((new Date() - new Date(date)) / 86400000);
+}
+/* =========================
+   BACKUP / CSV / SHARE
+========================= */
+
+
+function makeCSV(){
+  let csv = "Date,Focus,Exercise,Weight,Reps,Difficulty,Form\n";
+
+
+  state.logs.forEach(log=>{
+    log.data.forEach(e=>{
+      csv += `${log.date},${log.focus},"${e.name}",${e.weight},"${(e.reps||[]).join("/")}",${e.difficulty},${e.form}\n`;
+    });
+  });
+
+
+  return csv;
+}
+
+
+function shareCSV(){
+  if(state.logs.length===0){
+    popup("No workout data to export yet");
+    return;
+  }
+
+
+  const csv = makeCSV();
+  const blob = new Blob([csv], {type:"text/csv"});
+  const file = new File([blob], "SavFit_Workouts.csv", {type:"text/csv"});
+
+
+  if(navigator.canShare && navigator.canShare({files:[file]})){
+    navigator.share({
+      files:[file],
+      title:"SavFit Workout Data",
+      text:"Workout log exported from SavFit"
+    }).catch(()=>popup("Share cancelled"));
+  }else{
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "SavFit_Workouts.csv";
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    popup("CSV export created");
+  }
+}
+
+
+function exportBackup(){
+  const backup = JSON.stringify(state,null,2);
+  const blob = new Blob([backup], {type:"application/json"});
+  const file = new File([blob], "SavFit_Backup.json", {type:"application/json"});
+
+
+  if(navigator.canShare && navigator.canShare({files:[file]})){
+    navigator.share({
+      files:[file],
+      title:"SavFit Backup",
+      text:"SavFit backup file"
+    }).catch(()=>popup("Share cancelled"));
+  }else{
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "SavFit_Backup.json";
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    popup("Backup file created");
+  }
+}
+
+
+function importBackup(event){
+  const file = event.target.files[0];
+  if(!file) return;
+
+
+  const reader = new FileReader();
+
+
+  reader.onload = () => {
+    try{
+      const imported = JSON.parse(reader.result);
+      state = imported;
+      saveState();
+      applyProfile();
+      popup("Backup imported successfully");
+      renderScreen(currentScreen);
+    }catch(e){
+      popup("Backup import failed");
+    }
+  };
+
+
+  reader.readAsText(file);
+}
+
+
+/* =========================
+   SMART TRAINING
+========================= */
+
+
+function suggestProgression(exerciseName){
+  const rows = [];
+
+
+  state.logs.forEach(log=>{
+    const ex = log.data.find(e=>e.name===exerciseName);
+    if(ex){
+      rows.push({
+        date:log.date,
+        weight:Number(ex.weight)||0,
+        reps:(ex.reps||[]).reduce((a,b)=>a+(Number(b)||0),0)
+      });
+    }
+  });
+
+
+  if(rows.length < 2) return "Log this exercise more times to get progression advice.";
+
+
+  const last = rows[rows.length-1];
+  const prev = rows[rows.length-2];
+
+
+  if(last.weight > prev.weight){
+    return "Progressing well. Keep the same weight or add a small increase next time.";
+  }
+
+
+  if(last.weight === prev.weight && last.reps > prev.reps){
+    return "Reps improved. You may be ready to increase weight soon.";
+  }
+
+
+  return "Prioritise form. Keep weight the same next time.";
+}
+
+
+/* =========================
+   EXTRA NAV / MENU HOOKS
+========================= */
+
+
+function addExtraMenuButtons(){
+  const menu = $("menu");
+
+
+  if($("extraMenuButtons")) return;
+
+
+  const div = document.createElement("div");
+  div.id = "extraMenuButtons";
+  div.className = "card";
+  div.innerHTML = `
+    <h3>More</h3>
+    <button onclick="showScreen('checkin')">Daily Check-In</button>
+    <button onclick="showScreen('goals')">Goals</button>
+    <button onclick="showScreen('stats')">Stats</button>
+    <button onclick="showScreen('stretches')">Stretches</button>
+    <button onclick="showScreen('backup')">Backup</button>
+    <button onclick="showScreen('help')">Help</button>
+  `;
+
+
+  menu.appendChild(div);
+}
+
+
+/* =========================
+   APP STARTUP
+========================= */
+
+
+function initialiseApp(){
+  $("workoutDate").value = currentWorkout.date || today();
+  $("macroDate").value = today();
+  $("checkDate").value = today();
+
+
+  $("restSeconds").value = state.settings.restSeconds || 60;
+
+
+  applyProfile();
+  addExtraMenuButtons();
+  restoreCurrentWorkout();
+  renderHome();
+}
+
+
+window.addEventListener("load",()=>{
+  initialiseApp();
+});
+
+
+/* =========================
+   FINAL SAFETY
+========================= */
+
+
+window.addEventListener("beforeunload",()=>{
+  saveState();
+  saveCurrentWorkout();
+});
+
+
 </script>
 </body>
 </html>
